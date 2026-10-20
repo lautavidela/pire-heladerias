@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Piré Heladerías — Helado artesanal en General Alvear, Mendoza</title>
+  <meta name="description" content="Heladería artesanal en General Alvear, Mendoza. Más de 30 años elaborando helados, tortas y postres. Delivery en General Alvear." />
+  <meta name="theme-color" content="#131313" />
+
+  <!-- Favicon inline (un helado en la paleta de marca), evita el 404 de /favicon.ico -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3l7 12H9z' fill='%23E02130'/%3E%3Cpath d='M9 15h14l-7 14z' fill='%23FFFFFF'/%3E%3C/svg%3E" />
+
+  <!-- Tipografías: Montserrat (títulos 800/900 + texto) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Marca que hay JS activo (para animaciones de entrada sin "flash").
+       Si JS falla, el contenido se ve igual. -->
+  <script>document.documentElement.classList.add("js");</script>
+
+  <!-- Mapa de importación para Three.js (versión fija desde CDN).
+       Debe ir antes de cualquier script que lo use (js/helado.js). -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Salto al contenido (accesibilidad por teclado) -->
+  <a class="saltar-contenido" href="#sabores">Saltar al contenido</a>
+
+  <!-- Barra de progreso del scroll -->
+  <div class="progreso" aria-hidden="true">
+    <div class="progreso-barra"></div>
+    <div class="progreso-bocha"></div>
+  </div>
+
+  <!-- ══════════════ HEADER / MENÚ ══════════════ -->
+  <header class="header">
+    <a href="#escena" class="header-logo" aria-label="Piré Heladerías — inicio">Piré</a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu-nav" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="menu-nav" class="menu-nav" aria-label="Principal">
+      <a href="#historia">Historia</a>
+      <a href="#sabores">Sabores</a>
+      <a href="#tortas">Tortas</a>
+      <a href="#postres">Postres</a>
+      <a href="#delivery">Delivery</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </header>
+
+  <!-- Botón flotante WhatsApp -->
+  <a class="btn-wpp-float" href="https://wa.me/542625424589" target="_blank" rel="noopener" aria-label="Pedir por WhatsApp">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M16 3C9.4 3 4 8.3 4 14.9c0 2.6.8 5 2.3 7L4 29l7.3-2.3c1.9 1 4 1.6 6.2 1.6h.5c6.6 0 12-5.3 12-11.9C30 8.3 22.6 3 16 3zm5.9 17c-.3.8-1.5 1.5-2.4 1.6-.6.1-1.4.2-4.2-.9-3.5-1.5-5.8-5-6-5.3-.2-.2-1.4-1.9-1.4-3.7s.9-2.6 1.3-3c.3-.3.7-.4 1-.4h.7c.2 0 .5-.1.8.6.3.8 1.1 2.7 1.2 2.9.1.2.1.4 0 .7-.1.2-.2.4-.4.6-.2.2-.4.5-.6.7-.2.2-.4.4-.2.8.2.4 1 1.7 2.2 2.7 1.5 1.4 2.8 1.8 3.2 2 .4.2.7.1.9-.1.2-.2 1-1.1 1.3-1.5.3-.4.5-.3.9-.2.3.1 2.1 1 2.5 1.2.4.2.6.3.7.5.1.1.1.8-.2 1.6z"/></svg>
+  </a>
+
+  <main>
+
+    <!-- ══════════════ HERO: HELADO A PANTALLA COMPLETA (pinned) ══════════════
+         Capas de atrás hacia adelante:
+           1. .fondo  → oscuro con resplandor radial rojo
+           2. .hero-texto → texto gigante DETRÁS del helado
+           3. canvas 3D a pantalla completa (por encima del texto)
+           4. header / UI (fuera de la sección)
+         El texto se completa al final (beat 5), cuando el helado sale por abajo. -->
+    <section id="escena" class="escena hero" aria-label="Piré Heladerías: helado artesanal hecho paso a paso">
+      <a class="ancla" id="bienvenida" aria-hidden="true"></a>
+
+      <div class="escena-sticky">
+        <div class="fondo" aria-hidden="true"></div>
+
+        <!-- Texto gigante detrás del helado -->
+        <div class="hero-texto">
+          <h1 class="hero-titulo">
+            <span class="hero-linea" data-linea="0">Heladería</span>
+            <span class="hero-linea" data-linea="1">Piré</span>
+          </h1>
+          <p class="hero-sub">Sentí sabores naturales. Sentí Piré.</p>
+          <p class="hero-scroll" aria-hidden="true">Seguí scrolleando</p>
+        </div>
+
+        <!-- Canvas 3D de pantalla completa, por ENCIMA del texto -->
+        <div class="escena-visual">
+          <div class="helado-wrap">
+            <canvas id="helado-canvas" aria-hidden="true"></canvas>
+            <p class="helado-cargando" aria-hidden="true">Preparando el helado…</p>
+            <svg id="helado-svg" viewBox="0 0 400 600" role="img" aria-label="Ilustración de un helado artesanal de tres bochas con salsa, granas y cereza">
+              <defs>
+                <g id="forma-bocha">
+                  <path d="M -75,0
+                           A 75,75 0 1 1 75,0
+                           Q 62,24 48,8
+                           Q 32,30 16,10
+                           Q 0,32 -16,10
+                           Q -32,30 -48,8
+                           Q -62,24 -75,0 Z" />
+                  <path d="M -40,-42 A 48,48 0 0 1 8,-58" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="10" stroke-linecap="round" />
+                </g>
+                <clipPath id="clip-salsa">
+                  <circle cx="200" cy="131" r="76" />
+                </clipPath>
+              </defs>
+
+              <g id="cucurucho" class="capa">
+                <path d="M 128,352 L 272,352 L 204,548 Q 200,560 196,548 Z" fill="#D9A566" />
+                <path d="M 128,352 L 272,352 L 264,372 L 136,372 Z" fill="#C48C4C" />
+                <g stroke="#C48C4C" stroke-width="5" stroke-linecap="round" opacity=".85">
+                  <line x1="150" y1="372" x2="230" y2="530" />
+                  <line x1="190" y1="372" x2="252" y2="490" />
+                  <line x1="230" y1="372" x2="212" y2="540" />
+                  <line x1="140" y1="400" x2="258" y2="420" />
+                  <line x1="156" y1="450" x2="240" y2="468" />
+                  <line x1="172" y1="500" x2="224" y2="512" />
+                </g>
+              </g>
+
+              <g id="bocha-1" class="capa">
+                <use href="#forma-bocha" x="200" y="305" fill="#5C3A21" />
+              </g>
+
+              <g id="bocha-2" class="capa">
+                <use href="#forma-bocha" x="200" y="218" fill="#F2789F" />
+              </g>
+
+              <g id="bocha-3" class="capa">
+                <use href="#forma-bocha" x="200" y="131" fill="#C2844A" />
+              </g>
+
+              <g id="salsa" class="capa">
+                <g clip-path="url(#clip-salsa)">
+                  <path d="M 136,131
+                           C 136,85 164,61 200,61
+                           C 236,61 264,85 264,131
+                           L 264,149
+                           C 256,177 244,167 240,145
+                           C 234,175 218,171 216,147
+                           C 208,179 190,175 188,149
+                           C 180,177 166,169 162,147
+                           C 152,171 140,161 136,141 Z" fill="#4A2A15" />
+                </g>
+              </g>
+
+              <g id="granas" class="capa" stroke-linecap="round" stroke-width="4">
+                <line x1="182" y1="104" x2="188" y2="101" stroke="#FFFFFF" />
+                <line x1="206" y1="98" x2="212" y2="101" stroke="#F7A8C4" />
+                <line x1="196" y1="116" x2="202" y2="119" stroke="#F6D34A" />
+                <line x1="216" y1="120" x2="221" y2="116" stroke="#7EC8E3" />
+                <line x1="176" y1="124" x2="181" y2="127" stroke="#8BC34A" />
+                <line x1="228" y1="132" x2="232" y2="128" stroke="#E4572E" />
+                <line x1="192" y1="136" x2="198" y2="138" stroke="#FFFFFF" />
+                <line x1="210" y1="140" x2="215" y2="143" stroke="#F7A8C4" />
+              </g>
+
+              <g id="cereza" class="capa">
+                <path d="M 200,42 C 202,26 214,20 226,24" fill="none" stroke="#5C7A34" stroke-width="4" stroke-linecap="round" />
+                <circle cx="200" cy="58" r="17" fill="#A2112C" />
+                <circle cx="194" cy="52" r="5" fill="#E0556E" opacity=".8" />
+              </g>
+            </svg>
+          </div>
+          <div class="vineta" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ HISTORIA (sección propia, pinned) ══════════════ -->
+    <section id="historia" class="seccion historia" aria-label="Nuestra historia">
+      <div class="historia-sticky">
+        <div class="fondo-historia" aria-hidden="true"></div>
+        <div class="historia-pasos">
+
+          <article class="capitulo" data-cap="0">
+            <p class="cap-palabra" aria-hidden="true">40s</p>
+            <div class="cap-texto">
+              <p class="cap-etiqueta">Años 40</p>
+              <h2 class="cap-titulo">Los abuelos, en Gral. Alvear</h2>
+              <p class="cap-parrafo">Una familia de inmigrantes italianos empezó a elaborar helados cuya calidad perdura hasta hoy.</p>
+            </div>
+          </article>
+
+          <article class="capitulo" data-cap="1">
+            <p class="cap-palabra" aria-hidden="true">Reparto</p>
+            <div class="cap-texto">
+              <p class="cap-etiqueta">El reparto</p>
+              <h2 class="cap-titulo">Carritos que todos reconocían</h2>
+              <p class="cap-parrafo">Los abuelos hacían todas las labores, incluso el reparto callejero con carritos inconfundibles.</p>
+            </div>
+          </article>
+
+          <article class="capitulo" data-cap="2">
+            <p class="cap-palabra" aria-hidden="true">1986</p>
+            <div class="cap-texto">
+              <p class="cap-etiqueta">1986</p>
+              <h2 class="cap-titulo">Piré llega a Neuquén</h2>
+              <p class="cap-parrafo">Se instala una Heladería Piré en Neuquén, con sucursales en distintos puntos de la zona.</p>
+            </div>
+          </article>
+
+          <article class="capitulo" data-cap="3">
+            <p class="cap-palabra" aria-hidden="true">Hoy</p>
+            <div class="cap-texto">
+              <p class="cap-etiqueta">Hoy</p>
+              <h2 class="cap-titulo">Artesanal, todos los días</h2>
+              <p class="cap-parrafo">60 gustos, opciones light y una amplia gama de postres y tortas heladas.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+    <!-- ══════════════ SABORES ══════════════ -->
+    <section id="sabores" class="seccion sabores">
+      <div class="contenedor">
+        <p class="etiqueta reveal">Nuestros sabores</p>
+        <h2 class="titulo-anim" data-revelar="letras">60 gustos diferentes, más helados light</h2>
+        <p class="lead reveal">Deliciosos, tradicionales, frutales, livianos y especiales: la lista oficial de Piré.</p>
+
+        <div class="grilla-sabores" id="grilla-sabores">
+          <!-- Paneles rojos renderizados desde data/sabores.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Separador: marquee gigante que se inclina con la velocidad del scroll -->
+    <div class="separador" aria-hidden="true">
+      <div class="marquee" data-marquee="Helado artesanal · Desde 1986 · General Alvear · "></div>
+    </div>
+
+    <!-- ══════════════ TORTAS Y POSTRES ══════════════ -->
+    <section id="tortas" class="seccion tortas">
+      <div class="tortas-sticky">
+        <div class="contenedor">
+          <p class="etiqueta reveal">Tortas heladas</p>
+          <h2 class="titulo-anim" data-revelar="letras">Tortas para cualquier festejo</h2>
+          <p class="lead reveal">Deslizá para recorrer la vitrina.</p>
+        </div>
+        <div class="carrusel" id="carrusel-tortas">
+          <div class="carrusel-pista" id="grilla-tortas">
+            <!-- Renderizado desde data/tortas.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="postres" class="seccion postres">
+      <div class="postres-sticky">
+        <div class="contenedor">
+          <p class="etiqueta reveal">Helados postre</p>
+          <h2 class="titulo-anim" data-revelar="letras">Clásicos que no pueden faltar</h2>
+        </div>
+        <div class="postres-stack" id="grilla-postres">
+          <!-- Renderizado desde data/tortas.js (se apilan al scrollear) -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ DESAYUNO PIRÉ ══════════════ -->
+    <section id="desayuno" class="seccion desayuno">
+      <div class="contenedor">
+        <p class="etiqueta reveal">Desayuno Piré</p>
+        <h2 class="titulo-anim" data-revelar="letras">Café, medialunas y algo rico</h2>
+        <p class="lead reveal">Cafetería y pastelería para empezar bien el día (o la tarde).</p>
+        <div class="fotos-desayuno">
+          <div class="foto-placeholder" data-capa="1" role="img" aria-label="Foto del desayuno Piré (próximamente)">Foto 1</div>
+          <div class="foto-placeholder" data-capa="2" role="img" aria-label="Foto de la cafetería (próximamente)">Foto 2</div>
+          <div class="foto-placeholder" data-capa="3" role="img" aria-label="Foto de medialunas y pastelería (próximamente)">Foto 3</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contadores: cifras que cuentan al entrar en pantalla -->
+    <section class="seccion cifras" aria-label="Piré en números">
+      <div class="contenedor cifras-grilla">
+        <div class="cifra reveal">
+          <p class="cifra-numero" data-contar="60">0</p>
+          <p class="cifra-texto">gustos diferentes</p>
+        </div>
+        <div class="cifra reveal">
+          <p class="cifra-numero" data-contar="30" data-prefijo="+">0</p>
+          <p class="cifra-texto">años de historia</p>
+        </div>
+        <div class="cifra reveal">
+          <p class="cifra-numero" data-contar="40">0</p>
+          <p class="cifra-texto">años de elaboración artesanal</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ DELIVERY Y HORARIOS ══════════════ -->
+    <section id="delivery" class="seccion delivery">
+      <div class="contenedor">
+        <p class="etiqueta reveal">Delivery</p>
+        <h2 class="titulo-anim" data-revelar="letras">Pedí desde tu casa</h2>
+        <p class="lead reveal">Envíos a domicilio solo en General Alvear. Llamanos o escribinos por WhatsApp y te lo llevamos.</p>
+
+        <div class="estado-abierto reveal" id="estado-abierto" aria-live="polite">
+          <!-- "Está abierto ahora" calculado con JS en Etapa 2 -->
+        </div>
+
+        <div class="acciones-delivery reveal">
+          <!-- El reveal vive en la fila, no en cada botón: si no, el botón
+               secundario se queda en opacity 0 cuando los tramos de las
+               secciones pinned cambian de alto (etapa4.js). -->
+          <a class="btn-magnetico" id="btn-pedir-grande" href="https://wa.me/542625424589" target="_blank" rel="noopener">
+            <span class="btn-magnetico-txt">Pedir por WhatsApp</span>
+          </a>
+          <a class="btn grande btn-secundario" href="tel:+542625424589">Llamar al 424589</a>
+        </div>
+
+        <div class="horarios reveal">
+          <h3>Horarios</h3>
+          <ul>
+            <li data-dias="1,2,3,4,5"><span>Lunes a viernes</span><span>10:00 – 00:00</span></li>
+            <li data-dias="0,6"><span>Sábados y domingos</span><span>12:30 – 02:30</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ CONTACTO / FOOTER ══════════════ -->
+    <footer id="contacto" class="footer">
+      <div class="contenedor">
+        <p class="footer-rubros">Helados · Chocolates · Pastelería · Cafetería · Tortas · Tartas · Tragos · Té · Café · Alfajores</p>
+
+        <div class="footer-cols">
+          <div>
+            <h3>Contacto</h3>
+            <p>General Alvear, Mendoza, Argentina</p>
+            <p><a href="tel:+542625424589">+54 2625 42-4589</a></p>
+          </div>
+          <div>
+            <h3>Redes</h3>
+            <p><a href="https://instagram.com/pireheladeria" target="_blank" rel="noopener">Instagram @pireheladeria</a></p>
+            <p><a href="https://facebook.com/pireheladerias" target="_blank" rel="noopener">Facebook Piré Heladerías</a></p>
+          </div>
+          <div>
+            <h3>Dónde estamos</h3>
+            <div class="mapa-placeholder" role="img" aria-label="Mapa de ubicación (próximamente)">Mapa</div>
+          </div>
+        </div>
+
+        <p class="footer-copy">© <span id="anio"></span> Piré Heladerías · Hecho con amor en General Alvear</p>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Librerías -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+
+  <!-- Datos editables -->
+  <script src="data/sabores.js"></script>
+  <script src="data/tortas.js"></script>
+
+  <!-- Nuestro código.
+       IMPORTANTE: la escena 3D carga el HDR por fetch, así que esta
+       página necesita un SERVIDOR LOCAL (no file://) para funcionar.
+       Ej:  python -m http.server 8000  →  http://localhost:8000
+       helado-fallback.js = versión SVG original (sin WebGL / reduced-motion). -->
+  <script src="js/helado-fallback.js"></script>
+  <script src="js/helado.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/etapa4.js"></script>
+</body>
+</html>

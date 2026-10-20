@@ -1,0 +1,1446 @@
+/* ═══════════════════════════════════════════════════════════
+   PIRÉ HELADERÍAS — styles.css
+   Mobile-first, sin frameworks.
+   Paleta de marca: negro / blanco / rojo.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Variables ── */
+:root {
+  /* Paleta de marca */
+  --rojo: #E02130;          /* acentos, botones, títulos gigantes */
+  --rojo-hondo: #B91A27;    /* hover/active de botones rojos */
+  --rojo-claro: #FF5A66;    /* acento para textos chicos sobre negro (AA 6.2:1) */
+  --negro: #131313;         /* fondo general */
+  --negro-profundo: #0B0B0B;/* fondo raíz, footer */
+  --blanco: #FFFFFF;
+  --gris: #B0B0B0;          /* textos secundarios sobre negro (AA 8.7:1) */
+  --superficie: #1A1A1A;    /* cards / paneles sobre el negro */
+  --borde: rgba(255, 255, 255, 0.1);
+
+  /* Tipografía */
+  --font-display: "Montserrat", system-ui, sans-serif;
+  --font-texto: "Montserrat", system-ui, sans-serif;
+
+  /* Formas */
+  --radio: 1.25rem;
+  --radio-grande: 2rem;
+  --sombra: 0 6px 24px rgba(0, 0, 0, 0.5);
+
+  --header-alto: 4rem;
+}
+
+/* ── Reset básico ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: auto; /* Lenis se encarga del suavizado */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-texto);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--blanco);
+  background-color: var(--negro-profundo);
+  overflow-x: hidden;
+}
+
+/* Grano de fondo: capa fija por encima de los fondos de sección pero
+   por debajo del contenido (z-index 1; header/canvas usan z >= 90).
+   Hecho con gradientes CSS repetidos (sin imágenes externas). */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1.2px),
+    radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1.2px);
+  background-size: 3px 3px, 4px 4px;
+  background-position: 0 0, 1px 2px;
+  background-repeat: repeat;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+h1, h2, h3, .logo-pire, .footer-logo, .header-logo {
+  font-family: var(--font-display);
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+}
+
+/* Títulos grandes: Montserrat ultra bold, mayúsculas */
+h1, h2 {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+h1 { font-size: clamp(2.2rem, 7vw, 4rem); }
+h2 { font-size: clamp(1.7rem, 5vw, 2.8rem); }
+h3 { font-size: 1.2rem; font-weight: 700; }
+
+p { margin: 0 0 1em; }
+
+a { color: var(--rojo-claro); }
+
+::selection { background: var(--rojo); color: var(--blanco); }
+
+:focus-visible {
+  outline: 3px solid var(--rojo-claro);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Salto al contenido (visible solo con teclado) ── */
+.saltar-contenido {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 200;
+  padding: 0.7em 1.2em;
+  background: var(--rojo);
+  color: var(--blanco);
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  transform: translateY(-150%);
+  transition: transform 0.2s ease;
+}
+
+.saltar-contenido:focus {
+  transform: translateY(0);
+}
+
+/* ── Utilidades ── */
+.contenedor {
+  width: min(1100px, 100% - 2.5rem);
+  margin-inline: auto;
+}
+
+/* Elementos que entran animados (solo se ocultan con JS activo) */
+.js .reveal { opacity: 0; }
+
+.seccion {
+  padding: clamp(4rem, 10vw, 7rem) 0;
+}
+
+.etiqueta {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blanco);
+  background: var(--rojo);
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.acento { color: var(--rojo); }
+
+.lead {
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  color: var(--gris);
+  max-width: 40ch;
+}
+
+/* ── Barra de progreso ── */
+.progreso {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  z-index: 100;
+  background: transparent;
+  pointer-events: none;
+}
+
+.progreso-barra {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--rojo-hondo), var(--rojo));
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* Bolita que viaja con el progreso (guiño al cucurucho) */
+.progreso-bocha {
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--rojo);
+  border: 2px solid var(--blanco);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  transform: translateX(0);
+  will-change: transform;
+}
+
+/* ── Header ── */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-alto);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  z-index: 90;
+  background: rgba(11, 11, 11, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--borde);
+}
+
+.header-logo {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 1.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--blanco);
+  text-decoration: none;
+  margin: 0;
+}
+
+/* Puntito rojo de marca después del logo */
+.header-logo::after {
+  content: "";
+  width: 0.3em;
+  height: 0.3em;
+  margin-left: 0.12em;
+  border-radius: 50%;
+  background: var(--rojo);
+}
+
+.menu-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--borde);
+  border-radius: 50%;
+  background: var(--superficie);
+  cursor: pointer;
+  padding: 0.75rem;
+}
+
+.menu-btn span {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--blanco);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+.menu-nav {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 11, 11, 0.97);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 80;
+}
+
+.menu-nav.abierto { opacity: 1; visibility: visible; }
+
+.menu-nav a {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--blanco);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.menu-nav a:hover { color: var(--rojo-claro); }
+
+/* ── Botón flotante WhatsApp ── */
+.btn-wpp-float {
+  position: fixed;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: #25D366;
+  color: var(--blanco);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+  z-index: 95;
+  transition: transform 0.2s ease;
+}
+
+.btn-wpp-float:hover { transform: scale(1.1); }
+
+/* ═══════════════════════════════════════════════════════════
+   HERO: HELADO A PANTALLA COMPLETA
+   ═══════════════════════════════════════════════════════════ */
+.escena {
+  position: relative;
+  /* Alto del recorrido: lo fija js/helado.js (ALTURA_HERO_VH). */
+  height: var(--escena-alto, 700vh);
+}
+
+/* Anclas del menú (tramos de la página) */
+.ancla {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  scroll-margin-top: var(--header-alto);
+}
+
+.escena-sticky,
+.historia-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Fondo oscuro con resplandor radial rojo detrás del helado.
+   El color base lo anima GSAP (backgroundColor); los degradados de
+   arriba son capas de imagen que quedan siempre encima. */
+.fondo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--negro-profundo);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 50% 44%, rgba(224, 33, 48, 0.22), transparent 70%),
+    radial-gradient(ellipse 95% 95% at 50% 50%, transparent 42%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* ── Texto gigante DETRÁS del helado ── */
+.hero-texto {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: calc(var(--header-alto) + 1rem) 1.25rem 2rem;
+  pointer-events: none;
+}
+
+.hero-titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  font-size: clamp(3rem, 15vw, 12rem);
+  color: var(--blanco);
+}
+
+.hero-linea {
+  display: block;
+}
+
+/* "PIRÉ" en rojo para el contraste de marca */
+.hero-linea[data-linea="1"] { color: var(--rojo); }
+
+.hero-sub {
+  margin: 1.5rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1rem, 3.4vw, 1.6rem);
+  color: var(--blanco);
+  max-width: 30ch;
+}
+
+.hero-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gris);
+  white-space: nowrap;
+}
+
+/* ── Canvas 3D: capa de pantalla completa POR ENCIMA del texto ── */
+.escena-visual {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.vineta {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(ellipse 78% 78% at 50% 48%, transparent 58%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* Helado (canvas 3D o dibujo SVG) */
+.helado-wrap {
+  position: relative;
+  z-index: 2;
+  width: min(70vw, 52vh, 420px);
+  margin-inline: auto;
+  margin-top: 6vh;
+  pointer-events: none;
+}
+
+#helado-svg { width: 100%; height: auto; }
+
+/* Capas ocultas al inicio (GSAP las muestra con scrub) */
+.escena .capa { visibility: hidden; }
+
+/* ── Escena 3D: el canvas llena toda la pantalla ── */
+#escena.modo-3d .helado-wrap {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  margin: 0;
+}
+#helado-canvas {
+  display: none;              /* solo visible en modo-3d */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#escena.modo-3d #helado-canvas { display: block; }
+#escena.modo-3d #helado-svg { display: none; }
+
+/* Hint de carga mientras prepara la escena 3D (se oculta al estar lista) */
+.helado-cargando {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--font-texto);
+  font-size: 0.85rem;
+  color: var(--gris);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#escena.modo-cargando .helado-cargando { opacity: 1; }
+#escena.modo-3d .helado-cargando { opacity: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   HISTORIA (sección pinned propia)
+   ═══════════════════════════════════════════════════════════ */
+.historia {
+  position: relative;
+  /* Alto del recorrido: lo fija js/helado.js (ALTURA_HISTORIA_VH). */
+  height: var(--historia-alto, 350vh);
+  padding: 0;
+}
+
+.fondo-historia {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--negro-profundo);
+  background-image: radial-gradient(ellipse 70% 60% at 22% 40%, rgba(224, 33, 48, 0.14), transparent 72%);
+}
+
+.historia-pasos {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+
+.capitulo {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: center;
+  gap: 1rem;
+  padding: calc(var(--header-alto) + 2rem) clamp(1.25rem, 6vw, 6rem) 4rem;
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* Palabra gigante en rojo, con parallax.
+   En mobile va anclada abajo (detrás del texto) para no pisarlo. */
+.cap-palabra {
+  position: absolute;
+  bottom: -0.06em;
+  left: 0;
+  right: 0;
+  transform: none;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.82;
+  font-size: clamp(4rem, 22vw, 9rem);
+  color: var(--rojo);
+  opacity: 0.22;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.cap-texto {
+  position: relative;
+  z-index: 2;
+  max-width: 38rem;
+  /* En mobile el texto vive arriba: deja libre la franja de abajo,
+     donde va la palabra gigante. */
+  margin-bottom: clamp(4rem, 18vw, 9rem);
+}
+
+.cap-etiqueta {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blanco);
+  border-left: 4px solid var(--rojo);
+  padding-left: 0.6rem;
+}
+
+.cap-titulo {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.8rem, 6vw, 3.4rem);
+  color: var(--blanco);
+}
+
+.cap-parrafo {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+  color: var(--gris);
+  max-width: 34ch;
+}
+
+.btn-pedir {
+  display: inline-block;
+  margin-top: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--blanco);
+  background: var(--rojo);
+  padding: 0.7em 1.6em;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: var(--sombra);
+  pointer-events: auto;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-pedir:hover { transform: scale(1.05); background: var(--rojo-hondo); }
+
+@keyframes rebote {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   R4 · TÍTULOS REVELADOS POR LETRA
+   ═══════════════════════════════════════════════════════════ */
+.titulo-anim { perspective: 600px; }
+
+.titulo-anim .letra {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   R4 · SEPARADOR CON MARQUEE (se inclina con la velocidad)
+   ═══════════════════════════════════════════════════════════ */
+.separador {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(2rem, 6vw, 4rem) 0;
+  background: var(--rojo);
+  color: var(--blanco);
+}
+
+.marquee {
+  display: flex;
+  width: max-content;
+}
+
+/* Wrapper: recibe el skew. Pista interna: el loop horizontal. */
+.marquee-fila {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee-pista { will-change: transform; }
+
+/* En mobile el marquee queda quieto (el JS no lo anima): mostramos el
+   texto estático y recortado por el separador. */
+@media (max-width: 899px) {
+  .marquee-pista { transform: none !important; }
+}
+
+.marquee span {
+  display: block;
+  padding-right: 0.4em;
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  font-size: clamp(2.4rem, 9vw, 7rem);
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECCIONES DE CONTENIDO
+   ═══════════════════════════════════════════════════════════ */
+
+/* Sabores: cinco paneles (grilla en desktop, acordeón en mobile).
+   Desktop: tarjetas negras con cabecera roja; la lista va en DOS columnas
+   para que el bloque no quede como una pared roja de texto. */
+.grilla-sabores {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+  perspective: 1200px;
+}
+
+.panel-sabor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-grande);
+  padding: 0 0 clamp(1.25rem, 2.5vw, 1.75rem);
+  color: var(--blanco);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.panel-sabor.señalado {
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6);
+}
+
+/* Cabecera roja del panel: título blanco sobre la franja de marca. */
+.panel-titulo {
+  margin: 0;
+  padding: clamp(0.9rem, 2vw, 1.2rem) clamp(1.25rem, 2.5vw, 1.75rem);
+  background: var(--rojo);
+}
+
+.panel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--blanco);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Chevron del acordeón (triángulo CSS, sin emojis/iconos externos) */
+.panel-btn::after {
+  content: "";
+  flex-shrink: 0;
+  width: 0.65em;
+  height: 0.65em;
+  margin-left: 0.75rem;
+  border-right: 3px solid var(--blanco);
+  border-bottom: 3px solid var(--blanco);
+  transform: rotate(45deg) translateY(-0.15em);
+  transition: transform 0.25s ease;
+}
+
+.panel-sabor.abierto .panel-btn::after {
+  transform: rotate(225deg) translateY(-0.15em);
+}
+
+/* Lista: visible solo si el panel está abierto (en desktop la fuerza el media query) */
+.panel-lista {
+  display: none;
+  padding: clamp(1rem, 2vw, 1.35rem) clamp(1.25rem, 2.5vw, 1.75rem) 0;
+}
+
+.panel-sabor.abierto .panel-lista { display: block; }
+
+.panel-sub {
+  margin: 0.9rem 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--rojo-claro);
+  border-bottom: 2px solid rgba(224, 33, 48, 0.45);
+  padding-bottom: 0.25rem;
+}
+
+.panel-lista ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel-lista li {
+  padding: 0.24em 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: var(--blanco);
+}
+
+/* ── Tarjetas (base compartida por tortas y postres) ── */
+.grilla-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+
+.tarjeta {
+  position: relative;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-grande);
+  padding: 1.5rem;
+  overflow: hidden;
+  transition: transform 0.25s ease;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--blanco);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Borde de color arriba, generado con un pseudo-elemento.
+   Va un poco más abajo que el radio para que la esquina redondeada
+   no se lo coma. */
+.tarjeta::before {
+  content: "";
+  position: absolute;
+  top: 0.85rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--tarjeta-color, var(--rojo));
+}
+
+.tarjeta:hover,
+.tarjeta:focus-visible,
+.tarjeta.activa {
+  transform: translateY(-6px) scale(1.03);
+}
+
+.tarjeta h3 {
+  margin-top: 0.75rem;
+  color: var(--blanco);
+  font-size: clamp(1.15rem, 3.2vw, 1.5rem);
+  line-height: 1.15;
+}
+
+.tarjeta p {
+  color: var(--gris);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.tarjeta-bolita {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--tarjeta-color, var(--rojo));
+  margin-bottom: 0.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   R4 · TORTAS: carrusel horizontal pinned
+   Mobile: lista vertical apilada (el carrusel se arma solo en desktop).
+   ═══════════════════════════════════════════════════════════ */
+.tortas { padding-bottom: clamp(3rem, 8vw, 5rem); }
+
+.tortas-sticky { position: relative; }
+
+.carrusel {
+  margin-top: 2.5rem;
+  overflow: hidden;
+}
+
+.carrusel-pista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding-inline: clamp(1.25rem, 5vw, 3rem);
+}
+
+.carrusel-pista .tarjeta {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   R4 · POSTRES: grilla limpia
+   ═══════════════════════════════════════════════════════════ */
+.postres-sticky { position: relative; }
+
+.postres-stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+  padding-inline: clamp(1.25rem, 5vw, 3rem);
+}
+
+.postres-stack .tarjeta {
+  width: 100%;
+  margin: 0;
+  background: var(--superficie);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Desayuno */
+.fotos-desayuno {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  perspective: 900px;
+}
+
+.foto-placeholder {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radio-grande);
+  background: repeating-linear-gradient(45deg, #1A1A1A, #1A1A1A 12px, #141414 12px, #141414 24px);
+  border: 1px solid var(--borde);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--gris);
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   R4 · CIFRAS (contadores count-up)
+   ═══════════════════════════════════════════════════════════ */
+.cifras { background: #101010; }
+
+.cifras-grilla {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  text-align: center;
+}
+
+.cifra-numero {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1;
+  font-size: clamp(3.5rem, 12vw, 7rem);
+  color: var(--rojo);
+  letter-spacing: -0.03em;
+}
+
+.cifra-texto {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: clamp(0.85rem, 2.4vw, 1.05rem);
+  color: var(--blanco);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   R4 · DELIVERY: botón gigante rojo magnético
+   ═══════════════════════════════════════════════════════════ */
+.btn-magnetico {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-size: clamp(1.05rem, 2.6vw, 1.6rem);
+  color: var(--blanco);
+  background: var(--rojo);
+  padding: 0.7em 1.25em;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 14px 40px rgba(224, 33, 48, 0.32);
+  will-change: transform;
+  transition: transform 0.18s ease, background 0.25s ease;
+}
+
+.btn-magnetico-txt { display: block; }
+
+.btn-magnetico:hover { background: var(--rojo-hondo); }
+
+/* Pulso rojo (se usa cuando está abierto) */
+.btn-magnetico.pulso::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 3px solid var(--rojo);
+  animation: pulso-boton 2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulso-boton {
+  0% { transform: scale(1); opacity: 0.85; }
+  70% { transform: scale(1.28); opacity: 0; }
+  100% { transform: scale(1.28); opacity: 0; }
+}
+
+/* Delivery */
+.delivery { background: #101010; }
+
+.estado-abierto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: 0.5em 1.2em;
+  margin-bottom: 1.5rem;
+}
+
+.estado-punto {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: #9aa; /* lo pinta JS */
+  flex-shrink: 0;
+}
+
+.estado-abierto.abierto .estado-punto {
+  background: #2FBF71;
+  animation: pulso 2s ease-out infinite;
+}
+
+.estado-abierto.cerrado .estado-punto {
+  background: #D08A8A;
+}
+
+@keyframes pulso {
+  0% { box-shadow: 0 0 0 0 rgba(47, 191, 113, 0.55); }
+  70% { box-shadow: 0 0 0 10px rgba(47, 191, 113, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 191, 113, 0); }
+}
+
+.acciones-delivery {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+}
+
+.btn {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--blanco);
+  background: var(--rojo);
+  padding: 0.8em 1.6em;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: var(--sombra);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn:hover { transform: scale(1.05); background: var(--rojo-hondo); }
+
+.btn.grande { font-size: clamp(1rem, 1.8vw, 1.15rem); padding: 0.7em 1.25em; }
+
+.btn-secundario {
+  background: transparent;
+  border: 2px solid var(--blanco);
+  box-shadow: none;
+}
+
+.btn-secundario:hover { background: rgba(255, 255, 255, 0.1); }
+
+.horarios {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-grande);
+  padding: 1.5rem;
+  max-width: 26rem;
+}
+
+.horarios h3 {
+  color: var(--blanco);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.horarios ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.horarios li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.12);
+}
+
+.horarios li:last-child { border-bottom: none; }
+
+/* Día de hoy (lo marca JS) */
+.horarios li.hoy {
+  color: var(--rojo-claro);
+  font-weight: 800;
+}
+
+.horarios li.hoy span:first-child::after {
+  content: " · hoy";
+  font-weight: 600;
+}
+
+/* Footer */
+.footer {
+  background: var(--negro);
+  border-top: 1px solid var(--borde);
+  color: var(--blanco);
+  padding: 4rem 0 3rem;
+  overflow: hidden;
+}
+
+.footer a { color: var(--rojo-claro); }
+
+.footer-rubros {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gris);
+  max-width: 45ch;
+}
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin: 2.5rem 0;
+}
+
+.footer-cols h3 {
+  color: var(--rojo-claro);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mapa-placeholder {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radio);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  color: var(--gris);
+  min-width: 12rem;
+}
+
+.footer-copy {
+  font-size: 0.85rem;
+  color: var(--gris);
+  border-top: 1px solid var(--borde);
+  padding-top: 1.5rem;
+  margin: 0;
+}
+
+.footer-creditos {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--gris);
+  opacity: 0.75;
+  margin: 0.75rem 0 0;
+}
+.footer-creditos a { color: inherit; text-decoration: underline; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE (tablet y desktop)
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 640px) {
+  .fotos-desayuno { grid-template-columns: repeat(3, 1fr); }
+  .footer-cols { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 900px) {
+  /* En desktop el menú es horizontal, sin hamburguesa */
+  .menu-btn { display: none; }
+
+  .menu-nav {
+    position: static;
+    flex-direction: row;
+    background: transparent;
+    opacity: 1;
+    visibility: visible;
+    inset: auto;
+    gap: 1.4rem;
+    padding: 0;
+  }
+
+  .menu-nav a { font-size: 1rem; font-weight: 700; }
+
+  /* Sabores: grilla de paneles con las listas siempre visibles.
+     Columnas IGUALES (1fr) para que los 5 paneles se vean parejos.
+     Las dos últimas filas se reparten: 3 arriba y 2 abajo. */
+  .grilla-sabores {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.4rem;
+    align-items: stretch;
+  }
+
+  /* Los paneles 4 y 5 (Livianos y Especiales) ocupan mitades de la fila:
+     así no quedan dos tarjetas chicas pegadas a la izquierda. */
+  .panel-sabor:nth-child(4) { grid-column: 1 / 3; }
+  .panel-sabor:nth-child(5) { grid-column: 3 / 4; }
+
+  .panel-lista { display: block; }
+
+  /* Lista en dos columnas dentro del panel: más corta y más legible. */
+  .panel-lista ul {
+    columns: 2;
+    column-gap: 1.6rem;
+  }
+
+  .panel-lista li { break-inside: avoid; }
+
+  /* El título deja de ser un botón en desktop */
+  .panel-btn { pointer-events: none; }
+  .panel-btn::after { display: none; }
+
+  /* El helado ya no está en una columna: el glow rojo va al centro. */
+  .hero-texto { padding-top: calc(var(--header-alto) + 2rem); }
+
+  /* Historia: texto a la izquierda, palabra gigante a la derecha.
+     OJO: las dos columnas son minmax(0, …) para que la palabra (que no
+     se encoge) no aplaste al texto. La palabra va primero en el DOM,
+     así que le damos orden explícito con grid-row/column. */
+  .capitulo {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .cap-texto {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    max-width: 34rem;
+    margin-bottom: 0;
+  }
+
+  .cap-palabra {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    min-width: 0;
+    max-width: 100%;
+    text-align: right;
+    transform: none;
+    /* La palabra va SIEMPRE en una sola línea: si envolviéramos, una
+       palabra larga como "REPARTO" parte la última letra a la línea de
+       abajo (el bug que se veía a zoom 100% y no a zoom reducido).
+       Para que entre, la achicamos un poco y le dejamos más columna. */
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    font-size: clamp(3rem, 6.4vw, 7rem);
+  }
+
+  /* ── R4 · carrusel horizontal de tortas (pinned) ── */
+  .tortas { height: var(--tortas-alto, 320vh); }
+
+  .tortas-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .carrusel { overflow: visible; }
+
+  .carrusel-pista {
+    flex-direction: row;
+    gap: 1.6rem;
+    will-change: transform;
+  }
+
+  .carrusel-pista .tarjeta {
+    width: clamp(17rem, 30vw, 24rem);
+    min-height: 22rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .carrusel-pista .tarjeta-bolita {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .carrusel-pista .tarjeta h3 {
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  }
+
+  .carrusel-pista .tarjeta p {
+    font-size: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  /* ── R4 · postres: grilla limpia (sin superposición) ── */
+  .postres { height: auto; padding-bottom: clamp(4rem, 10vw, 7rem); }
+
+  .postres-sticky {
+    position: static;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .postres-stack {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.4rem;
+    align-items: stretch;
+  }
+
+  .postres-stack .tarjeta {
+    position: static;
+    width: 100%;
+    margin: 0;
+    min-height: 18rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    will-change: transform, opacity;
+  }
+
+  /* ── R4 · cifras en 3 columnas ── */
+  .cifras-grilla { grid-template-columns: repeat(3, 1fr); }
+
+  /* ── R4 · botón magnético en desktop ── */
+  .btn-magnetico { font-size: clamp(1.2rem, 2.2vw, 1.7rem); padding: 0.75em 1.4em; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PREFERS-REDUCED-MOTION
+   Versión estática apilada: hero + capítulos visibles, sin scrub.
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* En modo estático todo se ve de entrada */
+  .js .reveal { opacity: 1 !important; transform: none !important; }
+
+  .escena, .historia { height: auto; }
+
+  .escena-sticky,
+  .historia-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Hero: texto y helado apilados y centrados.
+     OJO: los contenedores tienen que seguir "posicionados" para quedar
+     por encima de .fondo (que es absolute); si no, el z-index se ignora
+     y el fondo tapa el texto. */
+  .escena-sticky {
+    padding: 6rem 1.25rem 3rem;
+  }
+
+  .hero-texto {
+    position: relative;
+    inset: auto;
+    padding: 0;
+  }
+
+  .escena-visual {
+    position: relative;
+    inset: auto;
+  }
+
+  .escena .capa { visibility: visible; }
+
+  .helado-wrap {
+    width: min(80vw, 420px);
+    margin: 2rem auto 0;
+  }
+
+  /* El canvas 3D no se usa en estático: se ve el SVG. */
+  #escena.modo-3d #helado-canvas { display: none; }
+  #escena.modo-3d #helado-svg { display: block; }
+
+  /* Texto gigante: todo visible, sin transformaciones */
+  .hero-linea .letra,
+  .hero-sub,
+  .hero-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Historia: capítulos apilados y visibles, sin pin */
+  .historia-pasos { height: auto; }
+
+  .capitulo {
+    position: static;
+    inset: auto;
+    opacity: 1 !important;
+    transform: none !important;
+    padding: 4rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .cap-palabra {
+    position: static;
+    transform: none !important;
+    opacity: 0.9 !important;
+    margin-bottom: 1rem;
+  }
+
+  /* ── R4: sin pins, sin stacks, sin tilt ── */
+  .titulo-anim { perspective: none; }
+
+  .titulo-anim .letra {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Marquee: queda quieto y centrado (sin scroll horizontal) */
+  .marquee { transform: none !important; }
+  .marquee span { padding-right: 0.4em; }
+
+  /* Sabores: paneles planos, sin tilt */
+  .panel-sabor { transform: none !important; }
+
+  /* Tortas: lista vertical, sin carrusel pinned */
+  .tortas { height: auto; }
+
+  .tortas-sticky,
+  .postres-sticky {
+    position: static;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .carrusel { overflow: visible; }
+
+  .carrusel-pista {
+    flex-direction: column;
+    padding-inline: 0;
+  }
+
+  .carrusel-pista .tarjeta { width: 100%; min-height: 0; }
+
+  /* Postres: tarjetas en flujo normal, sin apilarse */
+  .postres { height: auto; }
+
+  .postres-stack {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+    padding-inline: clamp(1.25rem, 5vw, 3rem);
+  }
+
+  .postres-stack .tarjeta {
+    position: static;
+    transform: none !important;
+    opacity: 1 !important;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+  }
+
+  /* Desayuno: fotos sin parallax 3D */
+  .foto-placeholder { transform: none !important; }
+
+  /* Cifras: números completos, sin contar */
+  .cifra-numero { transform: none !important; }
+
+  /* Botón magnético: estático, sin pulso */
+  .btn-magnetico { transform: none !important; }
+  .btn-magnetico.pulso::after { display: none; }
+}
+
