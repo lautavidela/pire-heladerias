@@ -5,9 +5,8 @@
 
    Etapa 1: layout sin superposición + el cono (procedural)
    girando con el scroll, luces de estudio y timeline de textos.
-   Etapa 2: 3 bochas procedurales (chocolate, frutilla y dulce de
-   leche) que caen con squash-and-stretch y giran un cuarto de
-   vuelta por cada una.
+   Etapa 2: 2 bochas procedurales (chocolate y frutilla) que caen
+   con squash-and-stretch y giran un cuarto de vuelta por cada una.
    Etapa 3: salsa con goteos, granas (InstancedMesh) y cereza;
    giro final del helado, ajuste de rim light y optimización.
 
@@ -25,21 +24,23 @@
   /* ── Ajustes rápidos ───────────────────────────────────────── */
 
   // Alto del HERO (en vh): recorrido del armado del helado sobre el texto.
-  // 700 en desktop; en mobile se usa menos (600). Un solo número para ajustar.
-  const ALTURA_HERO_VH = 700;
-  const ALTURA_HERO_VH_MOVIL = 600;
+  // Más bajo = menos scroll. Ajustado para que termine antes.
+  const ALTURA_HERO_VH = 420;
+  const ALTURA_HERO_VH_MOVIL = 340;
 
   // Alto de la sección HISTORIA (en vh): los 4 capítulos pinned.
   const ALTURA_HISTORIA_VH = 350;
 
   // Alto/ancho del helado terminado (unidades de mundo) para encuadrar.
   // Se usa una caja fija para que la cámara NO salte al agregar bochas/toppings.
-  const ALTURA_FINAL = 4.1;
+  // Ajustado a 2 bochas (antes 4.1 con 3 bochas).
+  const ALTURA_FINAL = 3.3;
   const ANCHO_FINAL = 1.75;
   const MARGEN_ENCUADRE = 1.06;
 
   // Duración total del timeline (unidades; solo importan las proporciones).
-  const D = 17;
+  // Los beats terminan en 10.8 (letras + hint). Un poco de cola => 11.6.
+  const D = 11.6;
 
   // Entorno HDR de estudio (CC0, PolyHaven). Si falla → RoomEnvironment.
   const HDR_URL =
@@ -372,21 +373,18 @@
     return malla;
   }
 
-  // Las 3 bochas, apiladas sobre la boca del cono.
+  // Bochas, apiladas sobre la boca del cono. (Reducido a 2)
   function crearBochas(THREE, perlin) {
     const y1 = TOPE_CONO + R_BOCHA * 0.25;
     const y2 = y1 + R_BOCHA * 1.12;
-    const y3 = y2 + R_BOCHA * 1.06;
 
     const disposicion = [
       { cfg: SABORES[0], y: y1, x: 0.0, z: 0.0 },
-      { cfg: SABORES[1], y: y2, x: 0.07, z: 0.05 },
-      { cfg: SABORES[2], y: y3, x: -0.06, z: -0.05 },
+      { cfg: SABORES[1], y: y2, x: -0.06, z: 0.05 },
     ];
 
     return disposicion.map((d, i) => {
       const malla = crearBocha(THREE, perlin, d.cfg, R_BOCHA, i + 1);
-      // Arranca bien arriba (fuera de cuadro): el timeline la hace caer.
       malla.position.set(d.x, d.y + 4.5, d.z);
       return { malla, cfg: d.cfg, yFinal: d.y, x: d.x, z: d.z };
     });
@@ -608,12 +606,12 @@
 
   /* ───────────────────────────────────────────────────────────
      TIMELINE DEL HERO (recorrido continuo atado al scroll)
-     Beat 0: cono entra desde abajo girando; "HELADERÍA" letra a letra
-     Beat 1: cae la bocha 1 (chocolate), tapa parte de las letras; aparece "PIRÉ"
+     Beat 0: cono entra desde abajo girando
+     Beat 0.5: aparecen las letras "HELADERÍA PIRÉ" (después del helado)
+     Beat 1: cae la bocha 1 (chocolate)
      Beat 2: cae la bocha 2 (frutilla)
-     Beat 3: cae la bocha 3 (dulce de leche)
-     Beat 4: salsa + granas + cereza
-     Beat 5: el helado BAJA y sale por abajo (giro final) → texto completo
+     Beat 3: salsa + granas + cereza
+     Beat 4: el helado BAJA y sale por abajo (giro final) → texto completo
      ═══════════════════════════════════════════════════════════════ */
   function construirTimeline(THREE, gsap, objetos) {
     const { grupoHelado, giro, cono, bochas, salsa, granas, cereza } = objetos;
@@ -637,18 +635,8 @@
           letras.push(s);
         }
       });
-      // Las letras arrancan VISIBLES (el hero nunca queda vacío al cargar):
-      // entran una vez con una animación de entrada, y después el helado
-      // las va tapando a medida que se arma con el scroll.
-      letras.forEach((s, i) => {
-        gsap.from(s, {
-          opacity: 0, y: 60, rotateX: -70,
-          duration: 0.9, delay: 0.25 + i * 0.05, ease: "power3.out",
-        });
-      });
     }
-    gsap.from(".hero-sub", { opacity: 0, y: 20, duration: 1, delay: 1.1, ease: "power2.out" });
-    gsap.set(".hero-scroll", { opacity: 1 });
+
     // Latido del hint al cargar (se apaga cuando empieza el scroll).
     const hintLoop = gsap.to(".hero-scroll", {
       y: 8, duration: 1.4, yoyo: true, repeat: -1, ease: "sine.inOut",
@@ -676,6 +664,13 @@
     };
 
     fondo(FONDO.inicio, 0);
+
+    // Primero aparece el helado (cono + bochas). El texto "HELADERÍA PIRÉ"
+    // entra un poco después, tal como pediste.
+    if (letras.length) {
+      gsap.set(letras, { opacity: 0 });
+      tl.to(letras, { opacity: 1, duration: 0.9, stagger: 0.03, ease: "power2.out" }, 1.8);
+    }
 
     // Giro continuo del helado ligado al scroll (grupo exterior).
     tl.fromTo(grupoHelado.rotation, { y: 0 }, { y: -Math.PI * 2, duration: D - 3.6, ease: "none" }, 0);
@@ -710,72 +705,63 @@
 
     // Mientras el helado se arma, el texto de fondo se atenúa un poco
     // (así el helado se lee mejor) y se vuelve a encender al final.
-    const l1 = letras.filter((s) => s.closest('[data-linea="0"]'));
-    const l2 = letras.filter((s) => s.closest('[data-linea="1"]'));
     if (letras.length) {
-      tl.to(letras, { opacity: 0.28, duration: 1.2, ease: "power2.inOut" }, 1.6);
+      tl.to(letras, { opacity: 0.22, duration: 0.8, ease: "power2.inOut" }, 3.6);
     }
 
-    // ── Beat 1: cae la bocha 1 (chocolate) ──
-    fondo(FONDO.bienvenida, 3.3);
-    dolly(0.98, 3.2, 1.2);
-    caerBocha(bocha(0), 3.5);
-    cuartoGiro(4.5);
+    // ── Beat 1: cae la bocha 1 ──
+    fondo(FONDO.bienvenida, 2.6);
+    dolly(0.98, 2.5, 1.0);
+    caerBocha(bocha(0), 2.8);
+    cuartoGiro(3.7);
 
-    // ── Beat 2: cae la bocha 2 (frutilla) ──
-    dolly(1.02, 5.2, 1.2);
-    caerBocha(bocha(1), 5.5);
-    cuartoGiro(6.5);
+    // ── Beat 2: cae la bocha 2 ──
+    fondo(FONDO.historia, 4.6);
+    dolly(1.02, 4.6, 1.0);
+    caerBocha(bocha(1), 4.9);
+    cuartoGiro(5.8);
 
-    // ── Beat 3: cae la bocha 3 (dulce de leche) ──
-    fondo(FONDO.historia, 7.2);
-    dolly(0.98, 7.2, 1.2);
-    caerBocha(bocha(2), 7.5);
-    cuartoGiro(8.5);
-
-    // ── Beat 4: salsa + granas + cereza ──
-    dolly(1.02, 9.2, 1.2);
+    // ── Beat 3: salsa + granas + cereza ──
+    dolly(1.02, 6.8, 1.0);
 
     if (salsa) {
       const ySalsa = salsa.grupo.position.y;
       gsap.set(salsa.grupo.position, { y: ySalsa + 0.7 });
       gsap.set(salsa.grupo.scale, { x: 0.001, y: 0.001, z: 0.001 });
       salsa.gotas.forEach((g) => gsap.set(g.scale, { x: 0.001, y: 0.001, z: 0.001 }));
-      tl.to(salsa.grupo.position, { y: ySalsa, duration: 1.1, ease: "power2.out" }, 9.4);
-      tl.to(salsa.grupo.scale, { x: 1, y: 1, z: 1, duration: 1.1, ease: "power2.out" }, 9.4);
+      tl.to(salsa.grupo.position, { y: ySalsa, duration: 0.9, ease: "power2.out" }, 7.0);
+      tl.to(salsa.grupo.scale, { x: 1, y: 1, z: 1, duration: 0.9, ease: "power2.out" }, 7.0);
       salsa.gotas.forEach((g, i) => {
         const e = g.userData.esc;
-        tl.to(g.scale, { x: e.x, y: e.y, z: e.z, duration: 0.7, ease: "power2.out" }, 10.2 + i * 0.07);
+        tl.to(g.scale, { x: e.x, y: e.y, z: e.z, duration: 0.6, ease: "power2.out" }, 7.7 + i * 0.06);
       });
     }
 
     if (granas) {
       gsap.set(granas.material, { opacity: 0 });
-      tl.to(granas.material, { opacity: 1, duration: 0.9, ease: "sine.out" }, 10.8);
+      tl.to(granas.material, { opacity: 1, duration: 0.7, ease: "sine.out" }, 8.1);
     }
 
     if (cereza) {
       const yCereza = cereza.position.y;
       gsap.set(cereza.position, { y: yCereza + 2.0 });
       gsap.set(cereza.scale, { x: 0.001, y: 0.001, z: 0.001 });
-      tl.to(cereza.position, { y: yCereza, duration: 0.5, ease: "power2.in" }, 11.2);
-      tl.to(cereza.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "sine.in" }, 11.2);
-      tl.to(cereza.scale, { x: 1.12, y: 0.84, z: 1.12, duration: 0.12, ease: "power2.out" }, 11.7);
-      tl.to(cereza.scale, { x: 1, y: 1, z: 1, duration: 0.4, ease: "elastic.out(1, 0.5)" }, 11.82);
+      tl.to(cereza.position, { y: yCereza, duration: 0.4, ease: "power2.in" }, 8.4);
+      tl.to(cereza.scale, { x: 1, y: 1, z: 1, duration: 0.4, ease: "sine.in" }, 8.4);
+      tl.to(cereza.scale, { x: 1.12, y: 0.84, z: 1.12, duration: 0.1, ease: "power2.out" }, 8.8);
+      tl.to(cereza.scale, { x: 1, y: 1, z: 1, duration: 0.3, ease: "elastic.out(1, 0.5)" }, 8.9);
     }
 
-    // ── Beat 5: el helado BAJA y sale por abajo (giro final) ──
-    // Al irse, el texto gigante vuelve al 100% y se completa el hero.
-    fondo(FONDO.cierre, 12.2);
+    // ── Beat 4: el helado BAJA y sale por abajo (giro final) ──
+    fondo(FONDO.cierre, 9.2);
     const yGrupo = grupoHelado.position.y;
-    tl.to(grupoHelado.position, { y: yGrupo - 6.4, duration: 2.4, ease: "power2.in" }, 12.6);
-    tl.to(grupoHelado.rotation, { y: -Math.PI * 4, duration: 2.6, ease: "power2.inOut" }, 12.6);
+    tl.to(grupoHelado.position, { y: yGrupo - 6.4, duration: 1.8, ease: "power2.in" }, 9.4);
+    tl.to(grupoHelado.rotation, { y: -Math.PI * 4, duration: 2.0, ease: "power2.inOut" }, 9.4);
     if (letras.length) {
-      tl.to(letras, { opacity: 1, duration: 1.0, ease: "power2.out" }, 13.2);
+      tl.to(letras, { opacity: 1, duration: 0.8, ease: "power2.out" }, 10.0);
     }
-    tl.to(".hero-scroll", { y: 0, duration: 0.6, ease: "power2.out" }, 13.4);
-    // El hint se apaga cuando el recorrido termina.
-    tl.to(".hero-scroll", { opacity: 0, duration: 0.6 }, 14.0);
+    tl.to(".hero-scroll", { y: 0, duration: 0.4, ease: "power2.out" }, 10.4);
+    tl.to(".hero-scroll", { opacity: 0, duration: 0.4 }, 10.8);
 
     // Botón del cierre (fuera del foco mientras el helado tapa el texto).
     const btnPedir = document.querySelector(".btn-pedir");

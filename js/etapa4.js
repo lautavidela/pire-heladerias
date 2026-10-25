@@ -57,14 +57,21 @@
       cont.classList.add("marquee");
     });
 
-    // En estático (reduced-motion) o en mobile queda quieto: el CSS ya lo
+    // En estático (reduced-motion) o sin GSAP queda quieto: el CSS ya lo
     // muestra centrado y sin animación.
-    if (reduce || !hayGSAP() || esMovil()) return;
+    if (reduce || !hayGSAP()) return;
+
+    // El loop horizontal corre también en mobile (le da vida); el skew por
+    // velocidad es solo desktop porque depende del gesto de scroll/velocidad
+    // y en táctil se ve nervioso.
+    const conSkew = !esMovil();
 
     const reposar = [];
     // Un único listener: cuando el scroll se frena, todos los separadores
     // vuelven a su posición recta.
-    ScrollTrigger.addEventListener("scrollEnd", () => reposar.forEach((f) => f()));
+    if (conSkew) {
+      ScrollTrigger.addEventListener("scrollEnd", () => reposar.forEach((f) => f()));
+    }
 
     contenedores.forEach((cont) => {
       const fila = cont.querySelector(".marquee-pista");
@@ -73,12 +80,15 @@
       const repeticiones = 6;
 
       // Desplazamiento continuo (loop) — sin depender del scroll.
+      // En mobile más lento: se lee sin marear.
       const tween = gsap.to(fila, {
         xPercent: -100 / repeticiones,
-        duration: 18,
+        duration: conSkew ? 18 : 26,
         ease: "none",
         repeat: -1,
       });
+
+      if (!conSkew) return;
 
       // Skew según la VELOCIDAD del scroll. Un ticker propio interpola el
       // valor hacia el objetivo en cada frame y, si no hubo scroll en los
@@ -151,7 +161,8 @@
         rotateX: -80,
         duration: 0.7,
         ease: "power3.out",
-        stagger: 0.02,
+        // Un poco más marcado en mobile, donde hay menos espacio.
+        stagger: esMovil() ? 0.035 : 0.02,
         scrollTrigger: { trigger: h, start: "top 85%" },
       });
     });
@@ -209,7 +220,6 @@
      ─────────────────────────────────────────────────────────── */
   function initCarruselTortas() {
     if (reduce || !hayGSAP()) return;
-    if (esMovil()) return; // en mobile queda la lista vertical
 
     const pista = document.getElementById("grilla-tortas");
     const seccion = document.getElementById("tortas");
@@ -217,6 +227,22 @@
 
     const tarjetas = gsap.utils.toArray(pista.children);
     if (!tarjetas.length) return;
+
+    // En mobile no hay carrusel pinned (rompería el scroll táctil): las
+    // tarjetas entran animadas al scrollear, con stagger, para que la lista
+    // no se sienta muerta.
+    if (esMovil()) {
+      gsap.from(tarjetas, {
+        opacity: 0,
+        y: 40,
+        scale: 0.97,
+        duration: 0.7,
+        ease: "power2.out",
+        stagger: 0.09,
+        scrollTrigger: { trigger: pista, start: "top 88%" },
+      });
+      return;
+    }
 
     // Cuánto hay que desplazar la pista para que la última tarjeta
     // termine pegada al borde derecho de la pantalla.
@@ -281,15 +307,18 @@
     seccion.style.height = "auto";
 
     if (esMovil()) {
+      gsap.set(tarjetas, { transformPerspective: 800, transformOrigin: "50% 100%" });
       gsap.from(tarjetas, {
         opacity: 0,
-        y: 30,
-        duration: 0.7,
-        ease: "power2.out",
-        stagger: 0.08,
+        y: 55,
+        rotateX: -8,
+        scale: 0.96,
+        duration: 0.75,
+        ease: "power3.out",
+        stagger: 0.11,
         scrollTrigger: {
           trigger: stack,
-          start: "top 90%",
+          start: "top 88%",
         },
       });
       return;
@@ -325,6 +354,20 @@
 
     const capas = gsap.utils.toArray("[data-capa]");
     if (!capas.length) return;
+
+    // En mobile las fotos son un carrusel horizontal (scroll nativo): el
+    // parallax de scroll las pisaría. Le damos vida con una entrada suave.
+    if (esMovil()) {
+      gsap.from(capas, {
+        opacity: 0,
+        y: 30,
+        duration: 0.7,
+        ease: "power2.out",
+        stagger: 0.1,
+        scrollTrigger: { trigger: ".fotos-desayuno", start: "top 90%" },
+      });
+      return;
+    }
 
     capas.forEach((el) => {
       const n = Number(el.getAttribute("data-capa")) || 1;

@@ -13,10 +13,10 @@ Modelos **100% procedurales** en Three.js (sin GLB). Realismo de estudio.
 ## Etapas
 - **Etapa 1 — OK**: layout sin superposición (grid 45/55 desktop, 55dvh mobile), cono procedural
   waffle, luces de estudio, timeline de textos, reduced-motion estático.
-- **Etapa 2 — OK**: 3 bochas procedurales (Perlin + textura por sabor) con caída/squash-and-stretch,
+- **Etapa 2 — OK**: 2 bochas procedurales (Perlin + textura por sabor) con caída/squash-and-stretch,
   cuarto de giro por bocha y encuadre de cámara con **área útil** que libra el header fijo.
 - **Etapa 3 — OK**: salsa con goteos, granas (`InstancedMesh`), cereza; giro final del helado,
-  rim light subida; SVG fallback a 3 bochas + toppings; limpieza de `.glb` y crédito Grab3D.
+  rim light subida; SVG fallback a 2 bochas + toppings; limpieza de `.glb` y crédito Grab3D.
 
 ## Rediseño (ronda nueva)
 - **R1 — Identidad visual (negro/blanco/rojo) — OK**: paleta `--rojo #E02130`, `--negro #131313`,
@@ -92,28 +92,70 @@ Modelos **100% procedurales** en Three.js (sin GLB). Realismo de estudio.
     cabía y quedaba fuera del viewport).
   - **Acentos**: `.tarjeta` usa siempre `--rojo` (decisión de marca); `data/tortas.js` conserva el
     `color` por producto pero la UI ya no lo usa.
+- **R5 — 2 bochas + hero corto + pedidos del cliente — OK**:
+  - **Dos bochas** (antes 3): `crearBochas` arma solo chocolate + frutilla; salsa/granas/cereza se
+    anclan a `bochas[bochas.length - 1]` (se adaptan solas). SVG fallback reubicado (salsa/granas/
+    cereza bajaron ~87px: la bocha de arriba ahora está en `y=218`, no `131`); `bocha-3` eliminada;
+    `aria-label` del SVG dice "dos bochas". `ALTURA_FINAL` 4.1 → **3.3** (encuadre acorde a la pila
+    más baja).
+  - **Hero más corto**: `ALTURA_HERO_VH` 700 → **420** (desktop) y `ALTURA_HERO_VH_MOVIL` 600 → **340**.
+    Timeline re-temporizado y **`D` 17 → 11.6** (antes había ~6 unidades de cola muerta). Beats:
+    cono 0–1.7, letras 1.8, bocha 1 a 2.8, bocha 2 a 4.9, salsa 7.0, granas 8.1, cereza 8.4,
+    salida del helado 9.4, letras al 100 % a 10.0.
+  - **Orden helado → texto**: las letras del título arrancan en `opacity 0` (`gsap.set`) y entran
+    (`tl.to`, 1.8) **después** de que aparece el helado, no antes. Se atenúan a 0.22 durante el
+    armado y vuelven a 1 al final.
+  - **Sabores**: fuera los 5 paneles rojos gigantes → tarjetas oscuras con **cabecera roja** y
+    listas en 2 columnas (desktop) / 1 (mobile); sin tilt en RM.
+  - **Postres**: se abandonó el *stacking* (se solapaban) → **grilla limpia** 3 columnas (desktop) /
+    1 (mobile) con entrada GSAP (`opacity`/`y`/`rotateX`, stagger).
+  - **Cifras**: "Años 40" → **40** con `data-contar` y leyenda "años de elaboración artesanal".
+  - **Footer**: eliminados los créditos (helado procedural + HDR) y el logo `PIRÉ` gigante.
+  - **Mobile**: botón de WhatsApp más chico; sin overflow horizontal (390/390); `nPins=0`.
+  - **Bug de sintaxis corregido**: el bloque de letras usaba `tl` **antes** de declararlo y el `if
+    (heroTitulo)` quedaba sin cerrar; se movió la animación de letras después de crear el timeline.
+- **R6 — Vida en mobile + desayuno en carrusel — OK**:
+  - **Desayuno mobile → carrusel horizontal**: `.fotos-desayuno` pasa a `display: flex` +
+    `overflow-x: auto` + `scroll-snap-type: x mandatory` (≤899px), con las fotos al **84 %** del ancho
+    (`flex: 0 0 84%`, `scroll-snap-align: center`) y `gap 1.25rem`, así **se ve el borde de la
+    siguiente** como *teaser* (antes: 3 fotos apiladas con solo 1rem, que se pisaban). El scroll es
+    nativo (inercia táctil, `overscroll-behavior-x: contain`, scrollbar oculta). El breakpoint de la
+    grilla de 3 columnas se movió de `min-width: 640px` a `min-width: 900px`.
+  - **Marquee en mobile**: se quitó el bloque CSS que forzaba `transform: none` y el `esMovil()` del
+    `return`; el **loop horizontal corre también en mobile** (más lento: `duration 26`). El *skew por
+    velocidad* sigue **solo desktop** (`conSkew`), porque depende del gesto y en táctil se ve nervioso.
+  - **Tortas mobile**: dejó de ser una lista muerta → entrada `opacity`/`y 40`/`scale 0.97` con
+    stagger al scrollear (sin pin, para no romper el scroll táctil).
+  - **Desayuno parallax**: queda **solo desktop**; en mobile las fotos entran con `opacity`/`y`
+    (el parallax de scroll las pisaba dentro del carrusel).
+  - **Postres mobile**: entrada más marcada (`y 55`, `rotateX -8`, `scale 0.96`, stagger 0.11).
+  - **Títulos**: stagger por letra un poco mayor en mobile (0.035 vs 0.02).
+  - **Limpieza**: `.gitignore` nuevo con `shots-*/` y `chrome-prof/` (las capturas de verificación
+    nunca se versionan; se borran al cerrar cada ronda).
 
 ## Archivos clave
-- `js/helado.js`: escena 3D completa. Constantes `ALTURA_ESCENA_VH=1250`, `ALTURA_FINAL=4.1`,
-  `ANCHO_FINAL=1.75`, `MARGEN_ENCUADRE=1.06`, `D=17`, `R_BOCHA=0.6`, `TOPE_CONO=1.44`,
-  `FONDO` (colores oscuros por tramo).
+- `js/helado.js`: escena 3D completa. Constantes `ALTURA_HERO_VH=420`, `ALTURA_HERO_VH_MOVIL=340`,
+  `ALTURA_HISTORIA_VH=350`, `ALTURA_FINAL=3.3`, `ANCHO_FINAL=1.75`, `MARGEN_ENCUADRE=1.06`, `D=11.6`,
+  `R_BOCHA=0.6`, `TOPE_CONO=1.44`, `SABORES` (chocolate/frutilla), `FONDO` (colores oscuros por tramo).
   Funciones: `cargarEntorno`, `normalizarObjeto`, `crearCono`, `texturaBocha`, `crearBocha`,
   `crearBochas`, `crearSalsa`, `crearGranas`, `crearCereza`, `crearCamara`, `crearLuces`,
   `crearSombraContacto`, `construirTimeline`, `construirHistoria`, `encuadrar`, `arrancar/parar`,
   `dispose`.
 - `index.html`: `#escena` con `.escena-texto` + `.escena-visual` + `.vineta`; 8 pasos;
-  SVG fallback (7 capas); anclas `#bienvenida`/`#historia`; favicon inline (rojo/blanco);
-  Montserrat; `theme-color #131313`.
-- `css/styles.css`: paleta de marca en `:root`; `#escena` alto `var(--escena-alto,1250vh)`;
-  grid; `.fondo` (degradados + glow rojo); `.grano` vía `body::after`; paneles de sabores.
+  SVG fallback (**2 bochas** + toppings); anclas `#bienvenida`/`#historia`; favicon inline
+  (rojo/blanco); Montserrat; `theme-color #131313`.
+- `css/styles.css`: paleta de marca en `:root`; `#escena` alto `var(--escena-alto,420vh)`;
+  grid; `.fondo` (degradados + glow rojo); `.grano` vía `body::after`; sabores (tarjetas oscuras +
+  cabecera roja + `columns: 2`); postres (`.postres-stack` grilla 3 col).
 - `data/sabores.js`: lista oficial; `SABORES_CATEGORIAS` con `subgrupos` opcional.
 - `js/helado-fallback.js`: versión SVG (sin WebGL / reduced-motion).
-- `js/main.js`: init general + Lenis + `window.PireHelado.init()`; `initSabores` (paneles/acordeón);
+- `js/main.js`: init general + Lenis + `window.PireHelado.init()`; `initSabores` (tarjetas/acordeón);
   `initTortas` (tarjetas de tortas/postres, acento siempre `var(--rojo)`).
 - `js/etapa4.js`: animaciones de R4 (marquees, títulos por letra, sabores 3D, carrusel de tortas,
-  stacking de postres, parallax de desayuno, contadores, botón magnético); se expone como
+  entrada de postres, parallax de desayuno, contadores, botón magnético); se expone como
   `window.PireEtapa4`.
 - `data/tortas.js`: tarjetas de tortas/postres/desayuno; conserva `color` por producto (no usado en UI).
+- `.gitignore`: `shots-*/` y `chrome-prof/` (capturas de verificación; no se versionan).
 
 ## Toppings (Etapa 3)
 - **Salsa**: casquete de esfera + 7 goteos (`LatheGeometry`). Cae desplegándose; goteos crecen escalonados.
@@ -158,6 +200,41 @@ Modelos **100% procedurales** en Three.js (sin GLB). Realismo de estudio.
     (`logoH 218`, `font-size 272px`), con **recorte intencional de 21px** por debajo del borde.
   - Capturas: `shots-fix/` (desktop), `shots-mfix/` (mobile), `shots-rmfix/` (reduced-motion);
     0 errores en los 3 barridos. Mobile sigue sin overflow (`scrollWidth == 390`).
+- **R5 (2 bochas + hero corto) — OK**: `node --check` OK en los 6 JS. Toda medición con
+  `Network.setCacheDisabled(true)`, URL con `?t=<ts>` y espera ≥20 s.
+  - Desktop 1440×900: `#escena` **3780px (4.20vh**, antes 6300/7vh); `bocha-2` presente, `bocha-3`
+    **ausente**; `aria-label` del SVG "dos bochas"; `scrollWidth 1425 ≤ 1440`; **0 errores y 0
+    requests fallidos** en barrido completo; `docH` 16307.
+  - Orden helado → texto verificado por scroll: letra `opacity` 0 al inicio → **1.0 a frac 0.20**
+    (ya apareció el helado) → 0.22 durante el armado → **1.0 al final**.
+  - Silueta 3D (ocultando texto/header): se leen **dos domos** superpuestos + cono + cereza + salsa
+    (antes eran tres). Centrada (centroide ≈ 0.5 del viewport).
+  - Mobile 390×844: `#escena` 2870px (340vh), `scrollWidth 390 == innerWidth`, `nPins=0`, sabores en
+    una columna sin overflow (348/348), postres grilla 1 col, tortas en lista vertical; **0 errores**.
+  - Reduced-motion: `escena` 1216px, `nPins=0`, postres 6/6 visibles, `.tortas-sticky`/
+    `.hero-texto` en `static`/`relative`, contadores en **60 / +30 / 40**; **0 errores**.
+  - Cifras: tras scroll leen **60 | +30 | 40** con leyendas "gustos diferentes | años de historia |
+    años de elaboración artesanal". Historia: 4 capítulos (`40s | Reparto | 1986 | Hoy`), grid
+    636px/572px (sin aplastar el texto).
+  - Capturas: `shots-2b/` (desktop + silueta 3D), `shots-2bm/` (mobile).
+- **R6 (vida en mobile) — OK**: `node --check` OK en los JS. Mobile 390×844, CDP con caché
+  deshabilitada y espera ≥20 s.
+  - **Desayuno**: `display flex`, `overflow-x auto`, `scroll-snap-type x mandatory`, `gap 20px`,
+    `flex-basis 84%`, contenedor `350px`, contenido `861px` (scrollable). Rectas de las fotos:
+    `40/260 | 320/260 | 601/260` → la 2.ª **asoma ~30px** (efecto teaser). Aspect 4:3.
+  - **Marquee**: el `transform` de la pista cambia entre frames (`-876` → `-930`) → **anima en
+    mobile** (antes estaba forzado a `none`).
+  - **Entradas**: tortas `0,0,…` → `1,1,…`; desayuno `0,0,0` → `1,1,1` tras scrollear; el marquee
+    sigue animando después del scroll.
+  - **Sin overflow**: `scrollWidth 390 == innerWidth` (392/392 en RM) en todo el barrido mobile;
+    **0 errores y 0 requests fallidos** (`docH` 14149).
+  - **Desktop 1440×900 intacto**: desayuno `grid` 3 col (345px c/u, gap 32px, `perspective 900px`),
+    `foto0` con `matrix3d` (rotateX + `y`) → **parallax activo**; `.tortas-sticky` en `sticky`;
+    marquee animando; `scrollWidth 1425 ≤ 1440`; **0 errores / 0 requests fallidos** (`docH` 16299).
+  - **Reduced-motion**: desktop → `foto0 transform: none`, marquee quieto, `.tortas-sticky` static;
+    mobile → desayuno `flex` con `scroll-snap: none`, fotos `opacity 1 / transform none`, tortas y
+    postres visibles; **0 errores**.
+  - Capturas: `shots-r6m/` (mobile).
 
 ## Créditos
 - Único crédito externo: HDR *Studio Small 09* — Sergej Majboroda, Poly Haven (CC0).
@@ -165,4 +242,4 @@ Modelos **100% procedurales** en Three.js (sin GLB). Realismo de estudio.
 ## Pendientes / próximos pasos
 - (ninguno bloqueante) Posible pulido: texturas de salsa más orgánicas, más variedad de toppings,
   revisar performance real en dispositivo; reemplazar los `.foto-placeholder` de desayuno y el
-  `.mapa-placeholder` por imágenes/mapa reales; evaluar si el marquee vuelve a animarse en mobile.
+  `.mapa-placeholder` por imágenes/mapa reales.
