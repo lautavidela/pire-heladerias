@@ -1,6 +1,6 @@
 .portada { overflow: visible; }
 .cabina { position: relative; isolation: isolate; overflow: hidden; }
-.portada.con-modelo { min-height: 250svh; }
+.portada.con-modelo { min-height: 340svh; }
 .con-modelo .cabina { --resplandor: #651527; --fondo-visor: #300e1a; position: sticky; top: 74px; min-height: calc(100svh - 74px); display: grid; align-items: center; background: radial-gradient(ellipse at 72% 44%,var(--resplandor) 0%,var(--fondo-visor) 28%,#100b10 57%,#0d0a0d 80%); }
 .con-modelo .portada-interior { z-index: 3; width: min(100% - 2 * var(--margen), 1340px); min-height: calc(100svh - 74px); padding-block: 2rem 8rem; pointer-events: none; }
 .con-modelo .portada-interior a, .con-modelo .portada-interior button { pointer-events: auto; }
@@ -34,7 +34,7 @@
 .panel-modelo button[aria-pressed="true"], .panel-modelo button:hover { background: #b51e41; }
 .ayuda-3d { flex-basis: 100%; text-align: right; margin: .2rem 0 0; font-size: .62rem; }
 @media (max-width: 720px) {
-  .portada.con-modelo { min-height: 235svh; }
+  .portada.con-modelo { min-height: 300svh; }
   .con-modelo .cabina { top: 62px; min-height: calc(100svh - 62px); padding: 0; background: radial-gradient(ellipse at 50% 36%,var(--resplandor) 0%,var(--fondo-visor) 36%,#100b10 68%); }
   .con-modelo .portada-interior { min-height: calc(100svh - 62px); display: grid; align-content: start; padding-top: clamp(205px, 38svh, 370px); padding-bottom: 7.1rem; }
   .con-modelo .visor { inset: 0 0 auto; height: clamp(228px, 42svh, 390px); }

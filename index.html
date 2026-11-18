@@ -72,12 +72,12 @@
 
     <section id="carta" class="carta">
       <div class="marco seccion">
-        <div class="encabezado">
+        <div class="encabezado" data-entrada>
           <div><p class="micro">LA CARTA PIRÉ</p><h2>Elegí tu gusto.</h2></div>
           <p>De los clásicos de siempre a nuestras especialidades. También hay opciones de agua, de crema y light.</p>
         </div>
         <div id="catalogo" hidden>
-          <div class="controles">
+          <div class="controles" data-entrada>
             <div id="categorias" class="categorias" role="group" aria-label="Categorías de la carta"></div>
             <label class="buscar"><span class="solo-lectura">Buscar en la carta</span><span class="lupa" aria-hidden="true"></span><input id="buscar" type="search" placeholder="Buscá un sabor" autocomplete="off"></label>
           </div>
@@ -90,13 +90,13 @@
     </section>
 
     <section class="especialidades marco seccion" aria-labelledby="especialidades">
-      <div class="encabezado"><div><p class="micro">HELADOS &amp; DELICATESSEN</p><h2 id="especialidades">También en Piré.</h2></div></div>
+      <div class="encabezado" data-entrada><div><p class="micro">HELADOS &amp; DELICATESSEN</p><h2 id="especialidades">También en Piré.</h2></div></div>
       <div class="tarjetas">
-        <article class="foto-tarjeta">
+        <article class="foto-tarjeta" data-entrada="foto">
           <img src="assets/editorial/tortas.webp" alt="Tortas de Piré con chocolate y frutos rojos" loading="lazy" decoding="async" width="1200" height="610">
           <div><h3>Tortas y postres</h3><a class="enlace" href="#carta" data-productos>Ver tortas y postres <span class="flecha diagonal" aria-hidden="true"></span></a></div>
         </article>
-        <article class="foto-tarjeta">
+        <article class="foto-tarjeta" data-entrada="foto">
           <img src="assets/editorial/cafeteria.webp" alt="Café y pastelería servidos en Piré" loading="lazy" decoding="async" width="1200" height="610">
           <div><h3>Cafetería</h3><a class="enlace" href="#visitanos">Vení a Piré <span class="flecha diagonal" aria-hidden="true"></span></a></div>
         </article>
@@ -105,17 +105,17 @@
 
     <section id="historia" class="historia">
       <div class="marco seccion historia-interior">
-        <div>
+        <div data-entrada="historia">
           <p class="micro">NUESTRA HISTORIA</p>
           <h2>De familia.<br>De Alvear.</h2>
           <p>En los últimos años de la década del 40, una familia de inmigrantes italianos empezó a hacer helado en General Alvear. Los abuelos lo elaboraban y lo repartían por las calles en sus carritos. De ahí viene Piré.</p>
         </div>
-        <img src="assets/editorial/vitrina.webp" alt="La vitrina de helados de Piré en General Alvear" loading="lazy" decoding="async" width="1200" height="610">
+        <img class="vitrina-historia" data-entrada="foto" src="assets/editorial/vitrina.webp" alt="La vitrina de helados de Piré en General Alvear" loading="lazy" decoding="async" width="1200" height="610">
       </div>
     </section>
 
     <section id="visitanos" class="marco seccion visita">
-      <div>
+      <div data-entrada>
         <p class="micro">GENERAL ALVEAR, MENDOZA</p>
         <h2>Nos vemos<br>en Piré.</h2>
         <p>Hacemos envíos a domicilio en General Alvear.</p>
@@ -124,13 +124,13 @@
           <a class="enlace" href="tel:+542625424589">Llamá al 424589</a>
         </div>
       </div>
-      <div class="horarios">
+      <div class="horarios" data-entrada="horarios">
         <h3>Horarios de atención</h3>
         <dl><div><dt>Lunes a viernes</dt><dd>10:00 – 00:00</dd></div><div><dt>Sábados y domingos</dt><dd>12:30 – 02:30</dd></div></dl>
         <a class="enlace" href="https://www.google.com/maps/search/?api=1&amp;query=Pir%C3%A9+Helader%C3%ADas+General+Alvear+Mendoza" target="_blank" rel="noopener">Buscar en Google Maps <span class="flecha diagonal" aria-hidden="true"></span></a>
       </div>
     </section>
   </main>
-  <footer><div class="marco pie"><a class="marca" href="#inicio" aria-label="Piré Heladerías, inicio">PIRÉ<span>.</span><small>HELADERÍAS</small></a><p>General Alvear, Mendoza</p><a class="enlace" href="https://instagram.com/pireheladeria" target="_blank" rel="noopener">Instagram <span class="flecha diagonal" aria-hidden="true"></span></a></div></footer>
+  <footer><div class="marco pie" data-entrada><a class="marca" href="#inicio" aria-label="Piré Heladerías, inicio">PIRÉ<span>.</span><small>HELADERÍAS</small></a><p>General Alvear, Mendoza</p><a class="enlace" href="https://instagram.com/pireheladeria" target="_blank" rel="noopener">Instagram <span class="flecha diagonal" aria-hidden="true"></span></a></div></footer>
 </body>
 </html>

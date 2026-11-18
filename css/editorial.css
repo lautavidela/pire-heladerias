@@ -129,3 +129,59 @@ footer { border-top: 1px solid var(--borde); }
   .escena img { transform: none; }
   *, *::before, *::after { transition-duration: .01ms !important; }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-entrada].en-escena {
+    animation: entrada-editorial .64s cubic-bezier(.2,.66,.24,1) both;
+  }
+  [data-entrada="foto"].en-escena { animation-name: entrada-foto; animation-duration: .86s; }
+  .foto-tarjeta + .foto-tarjeta.en-escena { animation-delay: .12s; }
+  [data-entrada="historia"].en-escena { animation-name: entrada-historia; }
+  [data-entrada="horarios"].en-escena { animation-delay: .12s; }
+  .resultados .sabor-entrante {
+    animation: entrada-sabor .36s cubic-bezier(.2,.65,.25,1) var(--demora, 0ms) both;
+  }
+  .resultados .sabor-entrante:focus { animation: none; }
+  .resultados li { transition: border-color .2s, background-color .2s; }
+  .resultados li:hover { border-color: #9f3144; background: #f1d9d7; }
+}
+
+@keyframes entrada-editorial {
+  from { opacity: 0; transform: translateY(1.55rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes entrada-foto {
+  from { clip-path: inset(10% 9% 10% 9% round .35rem); transform: translateY(1rem); }
+  to { clip-path: inset(0 round .35rem); transform: translateY(0); }
+}
+@keyframes entrada-historia {
+  from { opacity: 0; transform: translateX(-1.3rem); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes entrada-sabor {
+  from { opacity: .15; transform: translateY(.72rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .foto-tarjeta img {
+      animation: recorrido-foto linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    .historia {
+      animation: recorrido-historia linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 70%;
+    }
+  }
+}
+@keyframes recorrido-foto {
+  from { transform: scale(1.17) translateY(-3%); }
+  to { transform: scale(1.06) translateY(2%); }
+}
+@keyframes recorrido-historia {
+  from { background-color: #721529; }
+  to { background-color: #9c1b32; }
+}

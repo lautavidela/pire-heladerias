@@ -1,6 +1,16 @@
 (() => {
   "use strict";
 
+  const movimiento = matchMedia("(prefers-reduced-motion: no-preference)");
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach(({ target, isIntersecting }) => {
+      if (!isIntersecting) return;
+      target.classList.add(target.matches("li") ? "sabor-entrante" : "en-escena");
+      observador.unobserve(target);
+    });
+  }, { threshold: .14 });
+  document.querySelectorAll("[data-entrada]").forEach((elemento) => observador.observe(elemento));
+
   const catalogo = document.getElementById("catalogo");
   const categorias = document.getElementById("categorias");
   const campo = document.getElementById("buscar");
@@ -33,14 +43,21 @@
     ));
     const cantidad = Math.min(limite, resultados.length);
     const visibles = resultados.slice(ampliar ? lista.children.length : 0, cantidad);
-    if (!ampliar) lista.replaceChildren();
-    const filas = visibles.map(({ nombre, detalle }) => {
+    if (!ampliar) {
+      [...lista.children].forEach((fila) => observador.unobserve(fila));
+      lista.replaceChildren();
+    }
+    const filas = visibles.map(({ nombre, detalle }, indice) => {
       const fila = document.createElement("li");
       const titulo = document.createElement("strong");
       const tipo = document.createElement("span");
       titulo.textContent = nombre;
       tipo.textContent = detalle;
       fila.append(titulo, tipo);
+      if (movimiento.matches) {
+        fila.style.setProperty("--demora", `${Math.min(indice, 6) * 28}ms`);
+        observador.observe(fila);
+      }
       return fila;
     });
     lista.append(...filas);

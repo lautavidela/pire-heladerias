@@ -13,11 +13,10 @@ const capitulos = new Map([
   ["Vista separada", "HELADO\nEN CAPAS."],
   ["El cucurucho de waffle", "EL\nCUCURUCHO."],
   ["Las bochas", "DOS\nBOCHAS."],
-  ["Salsa, granas y cereza", "EL TOQUE\nFINAL."],
 ]);
 const botones = [...portada.querySelectorAll("[data-sabor]")];
 const reducir = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const { crearCono, crearGranas, crearCereza, normalizarObjeto, R_BOCHA } = window.PireHelado.modelo;
+const { crearCono, normalizarObjeto, R_BOCHA } = window.PireHelado.modelo;
 const sabores = [
   { nombre: "frutilla", archivo: "frutilla", color: 0xcf8495 },
   { nombre: "dulce de leche", archivo: "dulce-de-leche", color: 0xad693a },
@@ -37,22 +36,13 @@ function esculpirBocha(punto, ruido, semilla) {
   punto.set(punto.x * escala, punto.y * escala * .89 + punto.x * .086, punto.z * escala);
 }
 
-function geometriaBocha(ruido, semilla, cubierta = false) {
-  const geometria = new THREE.SphereGeometry(R_BOCHA, 64, 42, 0, Math.PI * 2, 0, cubierta ? 1.02 : Math.PI);
+function geometriaBocha(ruido, semilla) {
+  const geometria = new THREE.SphereGeometry(R_BOCHA, 64, 42);
   const posiciones = geometria.attributes.position;
   const punto = new THREE.Vector3();
   for (let i = 0; i < posiciones.count; i++) {
     punto.fromBufferAttribute(posiciones, i);
-    if (cubierta) {
-      const azimut = Math.atan2(punto.z, punto.x);
-      const polar = Math.acos(THREE.MathUtils.clamp(punto.y / R_BOCHA, -1, 1));
-      const goteo = Math.max(0, Math.cos(azimut * 5 + .65)) ** 7;
-      const borde = polar + (goteo * .29 + Math.sin(azimut * 3) * .075) * (polar / 1.02) ** 3;
-      punto.set(R_BOCHA * Math.sin(borde) * Math.cos(azimut), R_BOCHA * Math.cos(borde),
-        R_BOCHA * Math.sin(borde) * Math.sin(azimut));
-    }
     esculpirBocha(punto, ruido, semilla);
-    if (cubierta) punto.multiplyScalar(1.024);
     posiciones.setXYZ(i, punto.x, punto.y, punto.z);
   }
   geometria.computeVertexNormals();
@@ -111,38 +101,8 @@ async function iniciar() {
   const colorObjetivo = new THREE.Color(lucesSabor[0]);
   inferior.position.y = alturaInferior;
   superior.position.copy(posicion);
-  const cubierta = new THREE.Group();
-  const salsa = new THREE.Mesh(
-    geometriaBocha(perlin, 5.8, true),
-    new THREE.MeshPhongMaterial({ color: 0x3e1d12, shininess: 18, specular: 0x493228 }),
-  );
-  salsa.position.copy(posicion);
-  const granas = crearGranas(THREE, posicion, R_BOCHA * .93, 14);
-  granas.material.transparent = false;
-  granas.material.opacity = 1;
-  const cereza = crearCereza(THREE, posicion, posicion.y + R_BOCHA * .87);
-  cubierta.add(salsa, granas, cereza);
-  modelo.add(cono, inferior, superior, cubierta);
+  modelo.add(cono, inferior, superior);
   escena.add(modelo);
-
-  // Los cristales comparten geometría y material en una sola llamada de dibujo.
-  const cristales = new THREE.InstancedMesh(
-    new THREE.OctahedronGeometry(1),
-    new THREE.MeshBasicMaterial({ color: 0xcf8d99 }),
-    18,
-  );
-  const cristal = new THREE.Object3D();
-  for (let i = 0; i < cristales.count; i++) {
-    const angulo = i * 2.39996;
-    const radio = 1.1 + (i % 7) * .105;
-    cristal.position.set(Math.cos(angulo) * radio, .25 + (i % 16) * .215, Math.sin(angulo) * radio);
-    cristal.rotation.set(angulo, i, -angulo);
-    const dimension = .012 + (i % 8) * .003;
-    cristal.scale.set(dimension, dimension * (1 + i % 3), dimension);
-    cristal.updateMatrix();
-    cristales.setMatrixAt(i, cristal.matrix);
-  }
-  escena.add(cristales);
 
   let giro = .32;
   let giroObjetivo = giro;
@@ -197,29 +157,26 @@ async function iniciar() {
       renderer.setPixelRatio(escala);
       muestrasLentas = 0;
     }
-    const desmontar = suavizar(.025, .22);
-    const base = desmontar * (1 - suavizar(.30, .50));
-    const bocha = desmontar * (1 - suavizar(.48, .72));
-    const terminacion = desmontar * (1 - suavizar(.67, .88));
+    const desmontar = suavizar(.035, .26);
+    const base = desmontar * (1 - suavizar(.34, .63));
+    const bocha = desmontar * (1 - suavizar(.53, .88));
+    const terminado = suavizar(.86, 1);
 
-    cono.position.y = -.31 * base;
-    inferior.position.y = alturaInferior - .17 * base;
-    superior.position.set(posicion.x + .32 * bocha, posicion.y + .44 * bocha, posicion.z);
-    cubierta.position.set(-.27 * terminacion, .94 * terminacion, -.14 * terminacion);
-    modelo.rotation.set(.02 - .09 * bocha, giro + progreso * Math.PI * .95, -.10 + .19 * bocha);
-    cristales.rotation.y = -.25 - progreso * 2.5 + giro * .22;
+    cono.position.y = -.32 * base;
+    inferior.position.set(-.13 * base, alturaInferior + .08 * base, 0);
+    superior.position.set(posicion.x + .27 * bocha, posicion.y + .61 * bocha, posicion.z);
+    modelo.rotation.set(.02 - .07 * bocha, giro + progreso * Math.PI * .73, -.10 + .15 * bocha);
 
-    const distancia = Math.max(7.5, 5.9 / camara.aspect) + 1.5 * terminacion;
-    camara.position.set(.18, 1.82 + .24 * terminacion, distancia);
-    camara.lookAt(0, 1.72 + .22 * terminacion, 0);
+    const distancia = Math.max(7, 5.7 / camara.aspect) + .85 * bocha - .25 * terminado;
+    camara.position.set(.18, 1.65 + .21 * bocha, distancia);
+    camara.lookAt(0, 1.50 + .19 * bocha, 0);
     contraluz.color.lerp(colorObjetivo, reducir ? 1 : .14);
     renderer.render(escena, camara);
 
     const fase = progreso < .035 ? "Cucurucho Piré"
-      : progreso < .31 ? "Vista separada"
-      : progreso < .49 ? "El cucurucho de waffle"
-      : progreso < .72 ? "Las bochas"
-      : progreso < .89 ? "Salsa, granas y cereza" : "Cucurucho listo";
+      : progreso < .34 ? "Vista separada"
+      : progreso < .58 ? "El cucurucho de waffle"
+      : progreso < .89 ? "Las bochas" : "Cucurucho listo";
     if (fase !== faseAnterior) {
       etapa.textContent = fase;
       const titulo = capitulos.get(fase);
