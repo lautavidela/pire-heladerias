@@ -160,8 +160,8 @@
      ─────────────────────────────────────────────────────────── */
   function texturasCono(THREE) {
     const S = 512;
-    const claro = "#E3B472";
-    const oscuro = "#B07A34";
+    const claro = "#C79253";
+    const oscuro = "#916031";
 
     // Color (map)
     const cnv = document.createElement("canvas");
@@ -171,17 +171,19 @@
     c.fillRect(0, 0, S, S);
 
     // Grano fino del barquillo
-    for (let i = 0; i < 7000; i++) {
+    for (let i = 0; i < 15000; i++) {
       const x = Math.random() * S;
       const y = Math.random() * S;
       const v = Math.round(Math.random() * 40 - 20);
-      c.fillStyle = "rgba(" + (163 + v) + "," + (124 + v) + "," + (70 + v) + ",0.22)";
-      c.fillRect(x, y, 1.6, 1.6);
+      c.fillStyle = v > 2 ? "#ffe2aa48" : "#3a1e0d4d";
+      c.beginPath();
+      c.ellipse(x, y, .55 + Math.random() * 2.25, .45 + Math.random() * 1.25, v, 0, Math.PI * 2);
+      c.fill();
     }
 
     // Rombos del waffle (grilla diagonal)
-    const pasoGrid = 32;
-    const anchoLinea = 7;
+    const pasoGrid = 64;
+    const anchoLinea = 10;
     c.strokeStyle = oscuro;
     c.lineWidth = anchoLinea;
     c.beginPath();
@@ -212,6 +214,10 @@
     }
     cb.stroke();
 
+    for (let i = 0; i < 7500; i++) {
+      cb.fillStyle = "#22222240";
+      cb.fillRect(Math.random() * S, Math.random() * S, 1 + Math.random() * 2, 1);
+    }
     const bump = new THREE.CanvasTexture(cnvB);
     bump.wrapS = bump.wrapT = THREE.RepeatWrapping;
     bump.repeat.copy(map.repeat);
@@ -240,16 +246,11 @@
 
     const { map, bump } = texturasCono(THREE);
 
-    const mat = new THREE.MeshPhysicalMaterial({
+    const mat = new THREE.MeshStandardMaterial({
       map,
       bumpMap: bump,
-      bumpScale: 0.015,
-      roughness: 0.66,
-      metalness: 0.0,
-      clearcoat: 0.12,
-      clearcoatRoughness: 0.7,
-      sheen: 0.15,
-      sheenColor: new THREE.Color(0xffe0b0),
+      bumpScale: 0.026,
+      roughness: 0.89,
       side: THREE.DoubleSide,
     });
 

@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { ImprovedNoise } from "three/addons/math/ImprovedNoise.js";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import "./helado.js";
 
 const portada = document.querySelector(".portada");
@@ -18,88 +17,143 @@ const capitulos = new Map([
 ]);
 const botones = [...portada.querySelectorAll("[data-sabor]")];
 const reducir = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const { crearCono, crearBocha, crearBochas, crearSalsa, crearGranas, crearCereza, normalizarObjeto, R_BOCHA, SABORES } = window.PireHelado.modelo;
+const { crearCono, crearGranas, crearCereza, normalizarObjeto, R_BOCHA } = window.PireHelado.modelo;
 const sabores = [
-  SABORES[1],
-  SABORES[2],
-  { nombre: "pistacho", base: "#9FAD68", acento: "#65703B", claro: "#D9DBA1", detalle: "pintas", rough: .55 },
+  { nombre: "frutilla", archivo: "frutilla", color: 0xcf8495 },
+  { nombre: "dulce de leche", archivo: "dulce-de-leche", color: 0xad693a },
+  { nombre: "pistacho", archivo: "pistacho", color: 0x9b9c56 },
 ];
-const lucesSabor = [0xff637f, 0xffad71, 0xcee481];
+const chocolate = { nombre: "chocolate", archivo: "chocolate", color: 0x633822 };
+const lucesSabor = [0xffa1ac, 0xffbc89, 0xe0e9aa];
 
-function iniciar() {
-  const contexto = canvas.getContext("webgl2", { alpha: true, antialias: true });
+function esculpirBocha(punto, ruido, semilla) {
+  const y = punto.y / R_BOCHA;
+  const base = ruido.noise(punto.x * 3 + semilla, punto.y * 4, punto.z * 3);
+  const detalle = ruido.noise(punto.x * 16, punto.y * 21 + semilla, punto.z * 16);
+  const rugosidad = ruido.noise(punto.x * 38, punto.y * 41, punto.z * 38 + semilla);
+  const pliegue = Math.exp(-((y + .5 + base * .37) ** 2) * 27);
+  const estria = Math.sin(y * 32 + base * 7 + detalle * 1.5);
+  const escala = 1 + base * .15 + detalle * .051 + rugosidad * .014 + pliegue * (.085 + estria * .029);
+  punto.set(punto.x * escala, punto.y * escala * .89 + punto.x * .086, punto.z * escala);
+}
+
+function geometriaBocha(ruido, semilla, cubierta = false) {
+  const geometria = new THREE.SphereGeometry(R_BOCHA, 64, 42, 0, Math.PI * 2, 0, cubierta ? 1.02 : Math.PI);
+  const posiciones = geometria.attributes.position;
+  const punto = new THREE.Vector3();
+  for (let i = 0; i < posiciones.count; i++) {
+    punto.fromBufferAttribute(posiciones, i);
+    if (cubierta) {
+      const azimut = Math.atan2(punto.z, punto.x);
+      const polar = Math.acos(THREE.MathUtils.clamp(punto.y / R_BOCHA, -1, 1));
+      const goteo = Math.max(0, Math.cos(azimut * 5 + .65)) ** 7;
+      const borde = polar + (goteo * .29 + Math.sin(azimut * 3) * .075) * (polar / 1.02) ** 3;
+      punto.set(R_BOCHA * Math.sin(borde) * Math.cos(azimut), R_BOCHA * Math.cos(borde),
+        R_BOCHA * Math.sin(borde) * Math.sin(azimut));
+    }
+    esculpirBocha(punto, ruido, semilla);
+    if (cubierta) punto.multiplyScalar(1.024);
+    posiciones.setXYZ(i, punto.x, punto.y, punto.z);
+  }
+  geometria.computeVertexNormals();
+  return geometria;
+}
+
+async function iniciar() {
+  const contexto = canvas.getContext("webgl2", { alpha: true, antialias: false, powerPreference: "high-performance" });
   if (!contexto) return;
   const renderer = new THREE.WebGLRenderer({ canvas, context: contexto, alpha: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.15));
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = .94;
+  renderer.toneMappingExposure = 1.03;
   const escena = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  const sala = new RoomEnvironment(renderer);
-  const ambiente = pmrem.fromScene(sala, .025);
-  escena.environment = ambiente.texture;
-  sala.dispose();
-  pmrem.dispose();
-
   const camara = new THREE.PerspectiveCamera(32, 1, .1, 80);
-  const luzPrincipal = new THREE.DirectionalLight(0xffe7d1, 1.82);
+  const luzPrincipal = new THREE.DirectionalLight(0xffebd9, 2.35);
   luzPrincipal.position.set(-3, 5, 4);
-  const contraluz = new THREE.DirectionalLight(0xff597a, 2.8);
+  const contraluz = new THREE.DirectionalLight(0xffa1ac, 1.24);
   contraluz.position.set(2, 2, -4);
-  const relleno = new THREE.DirectionalLight(0xc2dcff, .38);
+  const relleno = new THREE.DirectionalLight(0xe3c5b5, .77);
   relleno.position.set(2, -2, 3);
-  escena.add(luzPrincipal, contraluz, relleno);
+  escena.add(luzPrincipal, contraluz, relleno, new THREE.HemisphereLight(0xf5e4d6, 0x744a38, .68));
 
   const perlin = new ImprovedNoise();
   const modelo = new THREE.Group();
   const cono = crearCono(THREE);
   normalizarObjeto(THREE, cono);
-  const [chocolate, frutilla] = crearBochas(THREE, perlin);
-  const superiores = [frutilla.malla];
-  const ajustarMaterial = (bocha) => {
-    bocha.material.envMapIntensity = .52;
-    bocha.material.clearcoat = .06;
-  };
-  ajustarMaterial(chocolate.malla);
-  ajustarMaterial(frutilla.malla);
+  const cargador = new THREE.TextureLoader();
+  const texturas = await Promise.all([chocolate, ...sabores].map(async (sabor) => {
+    try {
+      const textura = await cargador.loadAsync(new URL(`../assets/helado/${sabor.archivo}.webp`, import.meta.url).href);
+      textura.colorSpace = THREE.SRGBColorSpace;
+      textura.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+      return textura;
+    } catch {
+      return null;
+    }
+  }));
+
+  function materialBocha(sabor, textura) {
+    return new THREE.MeshStandardMaterial({
+      color: textura ? 0xffffff : sabor.color,
+      map: textura,
+      bumpMap: textura,
+      bumpScale: .023,
+      roughness: .89,
+    });
+  }
+
+  const inferior = new THREE.Mesh(geometriaBocha(perlin, 2.3), materialBocha(chocolate, texturas[0]));
+  const superior = new THREE.Mesh(geometriaBocha(perlin, 5.8), materialBocha(sabores[0], texturas[1]));
+  const materiales = sabores.map((sabor, i) => i === 0 ? superior.material : materialBocha(sabor, texturas[i + 1]));
+  const alturaInferior = 1.77;
+  const posicion = new THREE.Vector3(-.09, 2.41, .045);
   const colorObjetivo = new THREE.Color(lucesSabor[0]);
-  chocolate.malla.position.y = chocolate.yFinal;
-  frutilla.malla.position.y = frutilla.yFinal;
-  const posicion = frutilla.malla.position.clone();
+  inferior.position.y = alturaInferior;
+  superior.position.copy(posicion);
   const cubierta = new THREE.Group();
-  const salsa = crearSalsa(THREE, posicion, R_BOCHA);
-  const granas = crearGranas(THREE, posicion, R_BOCHA, 58);
-  granas.material.opacity = .85;
-  const cereza = crearCereza(THREE, posicion, posicion.y + R_BOCHA * .93);
-  cubierta.add(salsa.grupo, granas, cereza);
-  modelo.add(cono, chocolate.malla, frutilla.malla, cubierta);
+  const salsa = new THREE.Mesh(
+    geometriaBocha(perlin, 5.8, true),
+    new THREE.MeshPhongMaterial({ color: 0x3e1d12, shininess: 18, specular: 0x493228 }),
+  );
+  salsa.position.copy(posicion);
+  const granas = crearGranas(THREE, posicion, R_BOCHA * .93, 14);
+  granas.material.transparent = false;
+  granas.material.opacity = 1;
+  const cereza = crearCereza(THREE, posicion, posicion.y + R_BOCHA * .87);
+  cubierta.add(salsa, granas, cereza);
+  modelo.add(cono, inferior, superior, cubierta);
   escena.add(modelo);
 
-  // Los cristales también son geometría 3D y orbitan por detrás y delante.
-  const cristales = new THREE.Group();
-  const cristalGeo = new THREE.OctahedronGeometry(1);
-  const cristalMat = new THREE.MeshPhysicalMaterial({
-    color: 0xff9fb6, roughness: .24, metalness: .36, clearcoat: .8,
-    transparent: true, opacity: .72,
-  });
-  for (let i = 0; i < 34; i++) {
-    const cristal = new THREE.Mesh(cristalGeo, cristalMat);
+  // Los cristales comparten geometría y material en una sola llamada de dibujo.
+  const cristales = new THREE.InstancedMesh(
+    new THREE.OctahedronGeometry(1),
+    new THREE.MeshBasicMaterial({ color: 0xcf8d99 }),
+    18,
+  );
+  const cristal = new THREE.Object3D();
+  for (let i = 0; i < cristales.count; i++) {
     const angulo = i * 2.39996;
     const radio = 1.1 + (i % 7) * .105;
     cristal.position.set(Math.cos(angulo) * radio, .25 + (i % 16) * .215, Math.sin(angulo) * radio);
     cristal.rotation.set(angulo, i, -angulo);
-    const dimension = .016 + (i % 8) * .005;
+    const dimension = .012 + (i % 8) * .003;
     cristal.scale.set(dimension, dimension * (1 + i % 3), dimension);
-    cristales.add(cristal);
+    cristal.updateMatrix();
+    cristales.setMatrixAt(i, cristal.matrix);
   }
   escena.add(cristales);
 
-  let actual = superiores[0];
   let giro = .32;
   let giroObjetivo = giro;
   let seleccionado = 0;
   let progreso = 0;
+  let progresoObjetivo = 0;
+  let inicioScroll = 0;
+  let recorrido = 1;
+  let tiempoAnterior = 0;
+  let muestrasLentas = 0;
+  let escala = renderer.getPixelRatio();
   let faseAnterior;
   let frame = 0;
   let visible = true;
@@ -112,28 +166,47 @@ function iniciar() {
     const alto = visor.clientHeight;
     if (!ancho || !alto) return;
     renderer.setSize(ancho, alto, false);
+    inicioScroll = portada.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(cabina).top) || 0);
+    recorrido = Math.max(1, portada.offsetHeight - cabina.offsetHeight);
+    actualizarProgreso();
     camara.aspect = ancho / alto;
     camara.updateProjectionMatrix();
   }
 
-  function pintar() {
+  function actualizarProgreso() {
+    progresoObjetivo = reducir ? 0 : THREE.MathUtils.clamp((scrollY - inicioScroll) / recorrido, 0, 1);
+  }
+
+  function pintar(tiempo) {
     frame = 0;
     if (!visible || !operativo) return;
-    const rect = portada.getBoundingClientRect();
-    const recorrido = Math.max(1, rect.height - cabina.offsetHeight);
-    const desplazamiento = cabina.getBoundingClientRect().top - rect.top;
-    progreso = reducir ? 0 : THREE.MathUtils.clamp(desplazamiento / recorrido, 0, 1);
+    const intervalo = tiempoAnterior ? tiempo - tiempoAnterior : 16.7;
+    tiempoAnterior = tiempo;
+    const peso = reducir ? 1 : 1 - Math.exp(-Math.min(intervalo, 65) / 75);
+    progreso += (progresoObjetivo - progreso) * peso;
+    giro += (giroObjetivo - giro) * peso;
+    const moviendo = Math.abs(progresoObjetivo - progreso) > .0007 || Math.abs(giroObjetivo - giro) > .002;
+    if (!moviendo) {
+      progreso = progresoObjetivo;
+      giro = giroObjetivo;
+    }
+    // Baja la resolución de respaldo si el dispositivo no sostiene el giro.
+    muestrasLentas = moviendo && intervalo > 27 ? muestrasLentas + 1 : Math.max(0, muestrasLentas - 1);
+    if (muestrasLentas >= 5 && escala > .56) {
+      escala = Math.max(.55, escala * .8);
+      renderer.setPixelRatio(escala);
+      muestrasLentas = 0;
+    }
     const desmontar = suavizar(.025, .22);
     const base = desmontar * (1 - suavizar(.30, .50));
     const bocha = desmontar * (1 - suavizar(.48, .72));
     const terminacion = desmontar * (1 - suavizar(.67, .88));
 
     cono.position.y = -.31 * base;
-    chocolate.malla.position.y = chocolate.yFinal - .17 * base;
-    actual.position.set(posicion.x + .32 * bocha, posicion.y + .44 * bocha, posicion.z);
+    inferior.position.y = alturaInferior - .17 * base;
+    superior.position.set(posicion.x + .32 * bocha, posicion.y + .44 * bocha, posicion.z);
     cubierta.position.set(-.27 * terminacion, .94 * terminacion, -.14 * terminacion);
-    giro += (giroObjetivo - giro) * (reducir ? 1 : .16);
-    modelo.rotation.set(.02 - .09 * bocha, giro + progreso * Math.PI * 1.25, -.10 + .19 * bocha);
+    modelo.rotation.set(.02 - .09 * bocha, giro + progreso * Math.PI * .95, -.10 + .19 * bocha);
     cristales.rotation.y = -.25 - progreso * 2.5 + giro * .22;
 
     const distancia = Math.max(7.5, 5.9 / camara.aspect) + 1.5 * terminacion;
@@ -159,7 +232,8 @@ function iniciar() {
       faseAnterior = fase;
     }
     instrumentos.style.setProperty("--armado", progreso);
-    if (Math.abs(giroObjetivo - giro) > .002) agendar();
+    if (moviendo) agendar();
+    else tiempoAnterior = 0;
   }
 
   function agendar() {
@@ -172,13 +246,7 @@ function iniciar() {
       seleccionado = indice;
       portada.dataset.sabor = indice;
       colorObjetivo.setHex(lucesSabor[indice]);
-      modelo.remove(actual);
-      if (!superiores[indice]) {
-        superiores[indice] = crearBocha(THREE, perlin, sabores[indice], R_BOCHA, 2);
-        ajustarMaterial(superiores[indice]);
-      }
-      actual = superiores[indice];
-      modelo.add(actual);
+      superior.material = materiales[indice];
       botones.forEach((item) => item.setAttribute("aria-pressed", String(item === boton)));
       canvas.setAttribute("aria-label", `Modelo 3D de un cucurucho Piré con chocolate y ${sabores[indice].nombre}`);
       giroObjetivo += .42;
@@ -214,7 +282,10 @@ function iniciar() {
     dimensionar();
     agendar();
   });
-  window.addEventListener("scroll", agendar, { passive: true });
+  window.addEventListener("scroll", () => {
+    actualizarProgreso();
+    agendar();
+  }, { passive: true });
   new ResizeObserver(() => {
     dimensionar();
     agendar();
@@ -231,8 +302,6 @@ function iniciar() {
   agendar();
 }
 
-try {
-  iniciar();
-} catch (error) {
+iniciar().catch((error) => {
   console.warn("No se pudo iniciar el visor de Piré.", error);
-}
+});
