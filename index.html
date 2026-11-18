@@ -11,9 +11,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/editorial.css">
+  <link rel="stylesheet" href="css/experiencia.css">
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
   <script defer src="data/sabores.js"></script>
   <script defer src="data/tortas.js"></script>
   <script defer src="js/editorial.js"></script>
+  <script type="module" src="js/experiencia.mjs"></script>
 </head>
 <body>
   <a class="skip" href="#carta">Saltar a la carta</a>
@@ -26,21 +29,44 @@
   </header>
   <main id="inicio">
     <section class="portada" aria-labelledby="titulo">
-      <div class="escena" aria-hidden="true">
-        <div class="orbita orbita-exterior"></div><div class="orbita orbita-interior"></div>
-        <img src="assets/editorial/portada.webp" width="1536" height="1024" alt="" fetchpriority="high">
-      </div>
-      <div class="marco portada-interior">
-        <div class="portada-texto">
-          <p class="micro origen"><span></span> GENERAL ALVEAR, MENDOZA</p>
-          <h1 id="titulo">HELADO<br><em>DE ORIGEN.</em></h1>
-          <p class="bajada">Helado artesanal de una familia mendocina. Una historia que empezó en General Alvear, en los años 40.</p>
-          <div class="acciones">
-            <a class="boton boton-rojo" href="#carta">Explorá la carta <span class="flecha diagonal abajo" aria-hidden="true"></span></a>
-            <a class="enlace" href="#visitanos">Ver horarios y delivery</a>
+      <div class="cabina">
+        <div class="escena" aria-hidden="true">
+          <div class="orbita orbita-exterior"></div><div class="orbita orbita-interior"></div>
+          <img src="assets/editorial/portada.webp" width="1536" height="1024" alt="" fetchpriority="high">
+        </div>
+        <div class="visor">
+          <canvas id="visor-helado" role="img" aria-label="Modelo tridimensional de un cucurucho Piré con dos bochas" hidden></canvas>
+        </div>
+        <div class="marco portada-interior">
+          <div class="portada-texto">
+            <p class="micro origen"><span></span> GENERAL ALVEAR, MENDOZA</p>
+            <div class="titulos-escena">
+              <h1 id="titulo">HELADO<br><em>DE ORIGEN.</em></h1>
+              <p class="titulo-capitulo" id="titulo-capitulo" aria-hidden="true"></p>
+            </div>
+            <p class="bajada">Helado artesanal de una familia mendocina. Una historia que empezó en General Alvear, en los años 40.</p>
+            <div class="acciones">
+              <a class="boton boton-rojo" href="#carta">Explorá la carta <span class="flecha diagonal abajo" aria-hidden="true"></span></a>
+              <a class="enlace" href="#visitanos">Ver horarios y delivery</a>
+            </div>
+          </div>
+          <div class="instrumentos" hidden>
+            <div class="lectura">
+              <span class="micro">HELADO EN 3D</span>
+              <span id="etapa-helado">Cucurucho Piré</span>
+              <div class="pista" aria-hidden="true"><span></span></div>
+            </div>
+            <div class="panel-modelo">
+              <div class="sabores-3d" role="group" aria-label="Elegí la segunda bocha">
+                <button type="button" data-sabor="0" aria-pressed="true">Frutilla</button>
+                <button type="button" data-sabor="1" aria-pressed="false">Dulce de leche</button>
+                <button type="button" data-sabor="2" aria-pressed="false">Pistacho</button>
+              </div>
+              <button type="button" id="girar-helado">Girar <span aria-hidden="true">⟳</span></button>
+              <p class="micro ayuda-3d">ARRASTRÁ PARA GIRAR · BAJÁ PARA VER EL ARMADO</p>
+            </div>
           </div>
         </div>
-        <a class="bajar micro" href="#carta"><span class="flecha abajo" aria-hidden="true"></span> SEGUÍ EXPLORANDO</a>
       </div>
     </section>
 

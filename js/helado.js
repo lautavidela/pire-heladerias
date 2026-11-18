@@ -302,7 +302,7 @@
       }
     } else if (cfg.detalle === "pintas") {
       for (let i = 0; i < 320; i++) {
-        c.fillStyle = Math.random() < 0.5 ? "#C0304F" : "#FFE1E9";
+        c.fillStyle = Math.random() < 0.5 ? cfg.acento : cfg.claro;
         c.beginPath();
         c.arc(Math.random() * S, Math.random() * S, 1 + Math.random() * 2.2, 0, 6.3);
         c.fill();
@@ -1103,5 +1103,8 @@
     console.log("[Piré 3D] Recursos liberados.");
   }
 
-  window.PireHelado = { init };
+  window.PireHelado = {
+    init,
+    modelo: { crearCono, crearBocha, crearBochas, crearSalsa, crearGranas, crearCereza, normalizarObjeto, R_BOCHA, SABORES },
+  };
 })();

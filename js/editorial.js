@@ -86,38 +86,4 @@
   catalogo.hidden = false;
   elegir("todos");
 
-  const portada = document.querySelector(".portada");
-  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    let frame = 0;
-    let inicio = portada.offsetTop;
-    let alto = portada.offsetHeight;
-    let x = 0;
-    let y = 0;
-    function pintar() {
-      frame = 0;
-      portada.style.setProperty("--x", `${x}px`);
-      portada.style.setProperty("--y", `${y}px`);
-      const progreso = Math.max(0, Math.min(1, (scrollY - inicio) / alto));
-      portada.style.setProperty("--avance", `${progreso * 36}px`);
-    }
-    const agendar = () => { if (!frame) frame = requestAnimationFrame(pintar); };
-    window.addEventListener("scroll", agendar, { passive: true });
-    new ResizeObserver(() => {
-      inicio = portada.offsetTop;
-      alto = portada.offsetHeight;
-      agendar();
-    }).observe(portada);
-    portada.addEventListener("pointermove", (event) => {
-      if (event.pointerType !== "mouse") return;
-      const rect = portada.getBoundingClientRect();
-      x = ((event.clientX - rect.left) / rect.width - .5) * 24;
-      y = ((event.clientY - rect.top) / rect.height - .5) * 18;
-      agendar();
-    }, { passive: true });
-    portada.addEventListener("pointerleave", () => {
-      x = 0;
-      y = 0;
-      agendar();
-    });
-  }
 })();
