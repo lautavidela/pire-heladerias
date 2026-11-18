@@ -1,382 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es-AR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Piré Heladerías — Helado artesanal en General Alvear, Mendoza</title>
-  <meta name="description" content="Heladería artesanal en General Alvear, Mendoza. Más de 30 años elaborando helados, tortas y postres. Delivery en General Alvear." />
-  <meta name="theme-color" content="#131313" />
-
-  <!-- Favicon inline (un helado en la paleta de marca), evita el 404 de /favicon.ico -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3l7 12H9z' fill='%23E02130'/%3E%3Cpath d='M9 15h14l-7 14z' fill='%23FFFFFF'/%3E%3C/svg%3E" />
-
-  <!-- Tipografías: Montserrat (títulos 800/900 + texto) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="css/styles.css" />
-
-  <!-- Marca que hay JS activo (para animaciones de entrada sin "flash").
-       Si JS falla, el contenido se ve igual. -->
-  <script>document.documentElement.classList.add("js");</script>
-
-  <!-- Mapa de importación para Three.js (versión fija desde CDN).
-       Debe ir antes de cualquier script que lo use (js/helado.js). -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#100d0e">
+  <meta name="description" content="Helado artesanal, tortas heladas y cafetería en General Alvear, Mendoza. Conocé la carta de Piré y pedí por WhatsApp.">
+  <title>Piré Heladerías · Helado artesanal en General Alvear</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23e12739'/%3E%3Ctext x='8' y='24' font-family='sans-serif' font-weight='900' font-size='23' fill='white'%3EP%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/editorial.css">
+  <script defer src="data/sabores.js"></script>
+  <script defer src="data/tortas.js"></script>
+  <script defer src="js/editorial.js"></script>
 </head>
 <body>
-
-  <!-- Salto al contenido (accesibilidad por teclado) -->
-  <a class="saltar-contenido" href="#sabores">Saltar al contenido</a>
-
-  <!-- Barra de progreso del scroll -->
-  <div class="progreso" aria-hidden="true">
-    <div class="progreso-barra"></div>
-    <div class="progreso-bocha"></div>
-  </div>
-
-  <!-- ══════════════ HEADER / MENÚ ══════════════ -->
+  <a class="skip" href="#carta">Saltar a la carta</a>
   <header class="header">
-    <a href="#escena" class="header-logo" aria-label="Piré Heladerías — inicio">Piré</a>
-    <button class="menu-btn" aria-expanded="false" aria-controls="menu-nav" aria-label="Abrir menú">
-      <span></span><span></span><span></span>
-    </button>
-    <nav id="menu-nav" class="menu-nav" aria-label="Principal">
-      <a href="#historia">Historia</a>
-      <a href="#sabores">Sabores</a>
-      <a href="#tortas">Tortas</a>
-      <a href="#postres">Postres</a>
-      <a href="#delivery">Delivery</a>
-      <a href="#contacto">Contacto</a>
-    </nav>
-  </header>
-
-  <!-- Botón flotante WhatsApp -->
-  <a class="btn-wpp-float" href="https://wa.me/542625424589" target="_blank" rel="noopener" aria-label="Pedir por WhatsApp">
-    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M16 3C9.4 3 4 8.3 4 14.9c0 2.6.8 5 2.3 7L4 29l7.3-2.3c1.9 1 4 1.6 6.2 1.6h.5c6.6 0 12-5.3 12-11.9C30 8.3 22.6 3 16 3zm5.9 17c-.3.8-1.5 1.5-2.4 1.6-.6.1-1.4.2-4.2-.9-3.5-1.5-5.8-5-6-5.3-.2-.2-1.4-1.9-1.4-3.7s.9-2.6 1.3-3c.3-.3.7-.4 1-.4h.7c.2 0 .5-.1.8.6.3.8 1.1 2.7 1.2 2.9.1.2.1.4 0 .7-.1.2-.2.4-.4.6-.2.2-.4.5-.6.7-.2.2-.4.4-.2.8.2.4 1 1.7 2.2 2.7 1.5 1.4 2.8 1.8 3.2 2 .4.2.7.1.9-.1.2-.2 1-1.1 1.3-1.5.3-.4.5-.3.9-.2.3.1 2.1 1 2.5 1.2.4.2.6.3.7.5.1.1.1.8-.2 1.6z"/></svg>
-  </a>
-
-  <main>
-
-    <!-- ══════════════ HERO: HELADO A PANTALLA COMPLETA (pinned) ══════════════
-         Capas de atrás hacia adelante:
-           1. .fondo  → oscuro con resplandor radial rojo
-           2. .hero-texto → texto gigante DETRÁS del helado
-           3. canvas 3D a pantalla completa (por encima del texto)
-           4. header / UI (fuera de la sección)
-         El texto se completa al final (beat 4), cuando el helado sale por abajo. -->
-    <section id="escena" class="escena hero" aria-label="Piré Heladerías: helado artesanal hecho paso a paso">
-      <a class="ancla" id="bienvenida" aria-hidden="true"></a>
-
-      <div class="escena-sticky">
-        <div class="fondo" aria-hidden="true"></div>
-
-        <!-- Texto gigante detrás del helado -->
-        <div class="hero-texto">
-          <h1 class="hero-titulo">
-            <span class="hero-linea" data-linea="0">Heladería</span>
-            <span class="hero-linea" data-linea="1">Piré</span>
-          </h1>
-          <p class="hero-sub">Helado artesanal en General Alvear, Mendoza.</p>
-          <p class="hero-scroll" aria-hidden="true">Seguí scrolleando</p>
-        </div>
-        <div class="hero-acciones">
-          <a class="btn" href="#sabores">Ver sabores</a>
-          <a class="btn btn-secundario" href="#delivery">Pedir helado</a>
-        </div>
-
-        <!-- Canvas 3D de pantalla completa, por ENCIMA del texto -->
-        <div class="escena-visual">
-          <div class="helado-wrap">
-            <canvas id="helado-canvas" aria-hidden="true"></canvas>
-            <p class="helado-cargando" aria-hidden="true">Preparando el helado…</p>
-            <svg id="helado-svg" viewBox="0 0 400 600" role="img" aria-label="Ilustración de un helado artesanal de dos bochas con salsa, granas y cereza">
-              <defs>
-                <g id="forma-bocha">
-                  <path d="M -75,0
-                           A 75,75 0 1 1 75,0
-                           Q 62,24 48,8
-                           Q 32,30 16,10
-                           Q 0,32 -16,10
-                           Q -32,30 -48,8
-                           Q -62,24 -75,0 Z" />
-                  <path d="M -40,-42 A 48,48 0 0 1 8,-58" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="10" stroke-linecap="round" />
-                </g>
-                <clipPath id="clip-salsa">
-                  <circle cx="200" cy="218" r="76" />
-                </clipPath>
-              </defs>
-
-              <g id="cucurucho" class="capa">
-                <path d="M 128,352 L 272,352 L 204,548 Q 200,560 196,548 Z" fill="#D9A566" />
-                <path d="M 128,352 L 272,352 L 264,372 L 136,372 Z" fill="#C48C4C" />
-                <g stroke="#C48C4C" stroke-width="5" stroke-linecap="round" opacity=".85">
-                  <line x1="150" y1="372" x2="230" y2="530" />
-                  <line x1="190" y1="372" x2="252" y2="490" />
-                  <line x1="230" y1="372" x2="212" y2="540" />
-                  <line x1="140" y1="400" x2="258" y2="420" />
-                  <line x1="156" y1="450" x2="240" y2="468" />
-                  <line x1="172" y1="500" x2="224" y2="512" />
-                </g>
-              </g>
-
-              <g id="bocha-1" class="capa">
-                <use href="#forma-bocha" x="200" y="305" fill="#5C3A21" />
-              </g>
-
-              <g id="bocha-2" class="capa">
-                <use href="#forma-bocha" x="200" y="218" fill="#F2789F" />
-              </g>
-
-              <g id="salsa" class="capa">
-                <g clip-path="url(#clip-salsa)">
-                  <path d="M 136,218
-                           C 136,172 164,148 200,148
-                           C 236,148 264,172 264,218
-                           L 264,236
-                           C 256,264 244,254 240,232
-                           C 234,262 218,258 216,234
-                           C 208,266 190,262 188,236
-                           C 180,264 166,256 162,234
-                           C 152,258 140,248 136,228 Z" fill="#4A2A15" />
-                </g>
-              </g>
-
-              <g id="granas" class="capa" stroke-linecap="round" stroke-width="4">
-                <line x1="182" y1="191" x2="188" y2="188" stroke="#FFFFFF" />
-                <line x1="206" y1="185" x2="212" y2="188" stroke="#F7A8C4" />
-                <line x1="196" y1="203" x2="202" y2="206" stroke="#F6D34A" />
-                <line x1="216" y1="207" x2="221" y2="203" stroke="#7EC8E3" />
-                <line x1="176" y1="211" x2="181" y2="214" stroke="#8BC34A" />
-                <line x1="228" y1="219" x2="232" y2="215" stroke="#E4572E" />
-                <line x1="192" y1="223" x2="198" y2="225" stroke="#FFFFFF" />
-                <line x1="210" y1="227" x2="215" y2="230" stroke="#F7A8C4" />
-              </g>
-
-              <g id="cereza" class="capa">
-                <path d="M 200,129 C 202,113 214,107 226,111" fill="none" stroke="#5C7A34" stroke-width="4" stroke-linecap="round" />
-                <circle cx="200" cy="145" r="17" fill="#A2112C" />
-                <circle cx="194" cy="139" r="5" fill="#E0556E" opacity=".8" />
-              </g>
-            </svg>
-          </div>
-          <div class="vineta" aria-hidden="true"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════ HISTORIA (sección propia, pinned) ══════════════ -->
-    <section id="historia" class="seccion historia" aria-label="Nuestra historia">
-      <div class="historia-sticky">
-        <div class="fondo-historia" aria-hidden="true"></div>
-        <div class="historia-pasos">
-
-          <article class="capitulo" data-cap="0">
-            <p class="cap-palabra" aria-hidden="true">40s</p>
-            <div class="cap-texto">
-              <p class="cap-etiqueta">Años 40</p>
-              <h2 class="cap-titulo">Los abuelos, en Gral. Alvear</h2>
-              <p class="cap-parrafo">Una familia de inmigrantes italianos empezó a elaborar helados cuya calidad perdura hasta hoy.</p>
-            </div>
-          </article>
-
-          <article class="capitulo" data-cap="1">
-            <p class="cap-palabra" aria-hidden="true">Reparto</p>
-            <div class="cap-texto">
-              <p class="cap-etiqueta">El reparto</p>
-              <h2 class="cap-titulo">Carritos que todos reconocían</h2>
-              <p class="cap-parrafo">Los abuelos hacían todas las labores, incluso el reparto callejero con carritos inconfundibles.</p>
-            </div>
-          </article>
-
-          <article class="capitulo" data-cap="2">
-            <p class="cap-palabra" aria-hidden="true">1986</p>
-            <div class="cap-texto">
-              <p class="cap-etiqueta">1986</p>
-              <h2 class="cap-titulo">Piré llega a Neuquén</h2>
-              <p class="cap-parrafo">Se instala una Heladería Piré en Neuquén, con sucursales en distintos puntos de la zona.</p>
-            </div>
-          </article>
-
-          <article class="capitulo" data-cap="3">
-            <p class="cap-palabra" aria-hidden="true">Hoy</p>
-            <div class="cap-texto">
-              <p class="cap-etiqueta">Hoy</p>
-              <h2 class="cap-titulo">Artesanal, todos los días</h2>
-              <p class="cap-parrafo">60 gustos, opciones light y una amplia gama de postres y tortas heladas.</p>
-            </div>
-          </article>
-
-        </div>
-      </div>
-    </section>
-    <!-- ══════════════ SABORES ══════════════ -->
-    <section id="sabores" class="seccion sabores">
-      <div class="contenedor">
-        <h2>Encontrá tu sabor</h2>
-        <div class="buscador-sabores" hidden>
-          <label for="buscar-sabor">Buscar en la carta de helados</label>
-          <input type="search" id="buscar-sabor" placeholder="Ej. chocolate, limón o dulce de leche" autocomplete="off" />
-          <p id="estado-busqueda" role="status"></p>
-          <ul id="resultados-sabores" hidden></ul>
-        </div>
-        <noscript><p><a href="https://pireheladerias.com.ar/sabores.html">Consultar la carta de sabores</a></p></noscript>
-
-        <div class="grilla-sabores" id="grilla-sabores">
-          <!-- Paneles rojos renderizados desde data/sabores.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Separador: marquee gigante que se inclina con la velocidad del scroll -->
-    <div class="separador" aria-hidden="true">
-      <div class="marquee" data-marquee="Helado artesanal · Desde 1986 · General Alvear · "></div>
+    <div class="header-inner">
+      <a class="marca" href="#inicio" aria-label="Piré Heladerías, inicio">PIRÉ<span>.</span><small>HELADERÍAS</small></a>
+      <nav aria-label="Principal"><a href="#carta">La carta</a><a href="#historia">Nuestra historia</a><a href="#visitanos">Visitanos</a></nav>
+      <a class="boton boton-cabecera" href="#visitanos">Hacé tu pedido <span class="flecha diagonal" aria-hidden="true"></span></a>
     </div>
-
-    <!-- ══════════════ TORTAS Y POSTRES ══════════════ -->
-    <section id="tortas" class="seccion tortas">
-      <div class="tortas-sticky">
-        <div class="contenedor">
-          <p class="etiqueta reveal">Tortas heladas</p>
-          <h2 class="titulo-anim" data-revelar="letras">Tortas para cualquier festejo</h2>
-          <p class="lead reveal">Deslizá para recorrer la vitrina.</p>
-        </div>
-        <div class="carrusel" id="carrusel-tortas">
-          <div class="carrusel-pista" id="grilla-tortas">
-            <!-- Renderizado desde data/tortas.js -->
+  </header>
+  <main id="inicio">
+    <section class="portada" aria-labelledby="titulo">
+      <div class="escena" aria-hidden="true">
+        <div class="orbita orbita-exterior"></div><div class="orbita orbita-interior"></div>
+        <img src="assets/editorial/portada.webp" width="1536" height="1024" alt="" fetchpriority="high">
+      </div>
+      <div class="marco portada-interior">
+        <div class="portada-texto">
+          <p class="micro origen"><span></span> GENERAL ALVEAR, MENDOZA</p>
+          <h1 id="titulo">HELADO<br><em>DE ORIGEN.</em></h1>
+          <p class="bajada">Helado artesanal de una familia mendocina. Una historia que empezó en General Alvear, en los años 40.</p>
+          <div class="acciones">
+            <a class="boton boton-rojo" href="#carta">Explorá la carta <span class="flecha diagonal abajo" aria-hidden="true"></span></a>
+            <a class="enlace" href="#visitanos">Ver horarios y delivery</a>
           </div>
         </div>
+        <a class="bajar micro" href="#carta"><span class="flecha abajo" aria-hidden="true"></span> SEGUÍ EXPLORANDO</a>
       </div>
     </section>
 
-    <section id="postres" class="seccion postres">
-      <div class="postres-sticky">
-        <div class="contenedor">
-          <p class="etiqueta reveal">Helados postre</p>
-          <h2 class="titulo-anim" data-revelar="letras">Clásicos que no pueden faltar</h2>
+    <section id="carta" class="carta">
+      <div class="marco seccion">
+        <div class="encabezado">
+          <div><p class="micro">LA CARTA PIRÉ</p><h2>Elegí tu gusto.</h2></div>
+          <p>De los clásicos de siempre a nuestras especialidades. También hay opciones de agua, de crema y light.</p>
         </div>
-        <div class="postres-stack" id="grilla-postres">
-          <!-- Renderizado desde data/tortas.js (se apilan al scrollear) -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════ DESAYUNO PIRÉ ══════════════ -->
-    <section id="desayuno" class="seccion desayuno">
-      <div class="contenedor">
-        <p class="etiqueta reveal">Desayuno Piré</p>
-        <h2 class="titulo-anim" data-revelar="letras">Café, medialunas y algo rico</h2>
-        <p class="lead reveal">Cafetería y pastelería para empezar bien el día (o la tarde).</p>
-        <div class="fotos-desayuno">
-          <img class="foto-desayuno" data-capa="1" src="assets/desayuno/desayuno.jpg" loading="lazy" decoding="async" alt="Desayuno Piré, foto 1" />
-          <img class="foto-desayuno" data-capa="2" src="assets/desayuno/desayuno1.jpg" loading="lazy" decoding="async" alt="Desayuno Piré, foto 2" />
-          <img class="foto-desayuno" data-capa="3" src="assets/desayuno/desayuno2.jpg" loading="lazy" decoding="async" alt="Desayuno Piré, foto 3" />
-        </div>
-      </div>
-    </section>
-
-    <!-- Contadores: cifras que cuentan al entrar en pantalla -->
-    <section class="seccion cifras" aria-label="Piré en números">
-      <div class="contenedor cifras-grilla">
-        <div class="cifra reveal">
-          <p class="cifra-numero" data-contar="60">0</p>
-          <p class="cifra-texto">gustos diferentes</p>
-        </div>
-        <div class="cifra reveal">
-          <p class="cifra-numero" data-contar="30" data-prefijo="+">0</p>
-          <p class="cifra-texto">años de historia</p>
-        </div>
-        <div class="cifra reveal">
-          <p class="cifra-numero" data-contar="40">0</p>
-          <p class="cifra-texto">años de elaboración artesanal</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════ DELIVERY Y HORARIOS ══════════════ -->
-    <section id="delivery" class="seccion delivery">
-      <div class="contenedor">
-        <p class="etiqueta reveal">Delivery</p>
-        <h2 class="titulo-anim" data-revelar="letras">Pedí desde tu casa</h2>
-        <p class="lead reveal">Envíos a domicilio solo en General Alvear. Llamanos o escribinos por WhatsApp y te lo llevamos.</p>
-
-        <div class="estado-abierto reveal" id="estado-abierto" aria-live="polite">
-          <!-- "Está abierto ahora" calculado con JS en Etapa 2 -->
-        </div>
-
-        <div class="acciones-delivery reveal">
-          <!-- El reveal vive en la fila, no en cada botón: si no, el botón
-               secundario se queda en opacity 0 cuando los tramos de las
-               secciones pinned cambian de alto (etapa4.js). -->
-          <a class="btn-magnetico" id="btn-pedir-grande" href="https://wa.me/542625424589" target="_blank" rel="noopener">
-            <span class="btn-magnetico-txt">Pedir por WhatsApp</span>
-          </a>
-          <a class="btn grande btn-secundario" href="tel:+542625424589">Llamar al 424589</a>
-        </div>
-
-        <div class="horarios reveal">
-          <h3>Horarios</h3>
-          <ul>
-            <li data-dias="1,2,3,4,5"><span>Lunes a viernes</span><span>10:00 – 00:00</span></li>
-            <li data-dias="0,6"><span>Sábados y domingos</span><span>12:30 – 02:30</span></li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════ CONTACTO / FOOTER ══════════════ -->
-    <footer id="contacto" class="footer">
-      <div class="contenedor">
-        <p class="footer-rubros">Helados · Chocolates · Pastelería · Cafetería · Tortas · Tartas · Tragos · Té · Café · Alfajores</p>
-
-        <div class="footer-cols">
-          <div>
-            <h3>Contacto</h3>
-            <p>General Alvear, Mendoza, Argentina</p>
-            <p><a href="tel:+542625424589">+54 2625 42-4589</a></p>
+        <div id="catalogo" hidden>
+          <div class="controles">
+            <div id="categorias" class="categorias" role="group" aria-label="Categorías de la carta"></div>
+            <label class="buscar"><span class="solo-lectura">Buscar en la carta</span><span class="lupa" aria-hidden="true"></span><input id="buscar" type="search" placeholder="Buscá un sabor" autocomplete="off"></label>
           </div>
-          <div>
-            <h3>Redes</h3>
-            <p><a href="https://instagram.com/pireheladeria" target="_blank" rel="noopener">Instagram @pireheladeria</a></p>
-            <p><a href="https://facebook.com/pireheladerias" target="_blank" rel="noopener">Facebook Piré Heladerías</a></p>
-          </div>
-          <div>
-            <h3>Dónde estamos</h3>
-            <p><a href="https://www.google.com/maps/search/?api=1&amp;query=Pir%C3%A9+Helader%C3%ADas+General+Alvear+Mendoza" target="_blank" rel="noopener">Buscar Piré en Google Maps</a></p>
-          </div>
+          <p id="recuento" class="recuento micro" role="status"></p>
+          <ul class="resultados" id="resultados"></ul>
+          <button id="ver-mas" class="boton boton-contorno" type="button" hidden>Ver más sabores <span class="flecha abajo" aria-hidden="true"></span></button>
         </div>
-
-        <p class="footer-copy">© <span id="anio"></span> Piré Heladerías · Hecho con amor en General Alvear</p>
+        <noscript><a href="https://pireheladerias.com.ar/sabores.html">Abrir la carta de sabores</a></noscript>
       </div>
-    </footer>
+    </section>
 
+    <section class="especialidades marco seccion" aria-labelledby="especialidades">
+      <div class="encabezado"><div><p class="micro">HELADOS &amp; DELICATESSEN</p><h2 id="especialidades">También en Piré.</h2></div></div>
+      <div class="tarjetas">
+        <article class="foto-tarjeta">
+          <img src="assets/editorial/tortas.webp" alt="Tortas de Piré con chocolate y frutos rojos" loading="lazy" decoding="async" width="1200" height="610">
+          <div><h3>Tortas y postres</h3><a class="enlace" href="#carta" data-productos>Ver tortas y postres <span class="flecha diagonal" aria-hidden="true"></span></a></div>
+        </article>
+        <article class="foto-tarjeta">
+          <img src="assets/editorial/cafeteria.webp" alt="Café y pastelería servidos en Piré" loading="lazy" decoding="async" width="1200" height="610">
+          <div><h3>Cafetería</h3><a class="enlace" href="#visitanos">Vení a Piré <span class="flecha diagonal" aria-hidden="true"></span></a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="historia" class="historia">
+      <div class="marco seccion historia-interior">
+        <div>
+          <p class="micro">NUESTRA HISTORIA</p>
+          <h2>De familia.<br>De Alvear.</h2>
+          <p>En los últimos años de la década del 40, una familia de inmigrantes italianos empezó a hacer helado en General Alvear. Los abuelos lo elaboraban y lo repartían por las calles en sus carritos. De ahí viene Piré.</p>
+        </div>
+        <img src="assets/editorial/vitrina.webp" alt="La vitrina de helados de Piré en General Alvear" loading="lazy" decoding="async" width="1200" height="610">
+      </div>
+    </section>
+
+    <section id="visitanos" class="marco seccion visita">
+      <div>
+        <p class="micro">GENERAL ALVEAR, MENDOZA</p>
+        <h2>Nos vemos<br>en Piré.</h2>
+        <p>Hacemos envíos a domicilio en General Alvear.</p>
+        <div class="acciones">
+          <a class="boton boton-rojo" href="https://wa.me/542625424589" target="_blank" rel="noopener">Pedí por WhatsApp <span class="flecha diagonal" aria-hidden="true"></span></a>
+          <a class="enlace" href="tel:+542625424589">Llamá al 424589</a>
+        </div>
+      </div>
+      <div class="horarios">
+        <h3>Horarios de atención</h3>
+        <dl><div><dt>Lunes a viernes</dt><dd>10:00 – 00:00</dd></div><div><dt>Sábados y domingos</dt><dd>12:30 – 02:30</dd></div></dl>
+        <a class="enlace" href="https://www.google.com/maps/search/?api=1&amp;query=Pir%C3%A9+Helader%C3%ADas+General+Alvear+Mendoza" target="_blank" rel="noopener">Buscar en Google Maps <span class="flecha diagonal" aria-hidden="true"></span></a>
+      </div>
+    </section>
   </main>
-
-  <!-- Librerías -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-
-  <!-- Datos editables -->
-  <script src="data/sabores.js"></script>
-  <script src="data/tortas.js"></script>
-
-  <!-- Nuestro código.
-       IMPORTANTE: la escena 3D carga el HDR por fetch, así que esta
-       página necesita un SERVIDOR LOCAL (no file://) para funcionar.
-       Ej:  python -m http.server 8000  →  http://localhost:8000
-       helado-fallback.js = versión SVG original (sin WebGL / reduced-motion). -->
-  <script src="js/helado-fallback.js"></script>
-  <script src="js/helado.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/etapa4.js"></script>
+  <footer><div class="marco pie"><a class="marca" href="#inicio" aria-label="Piré Heladerías, inicio">PIRÉ<span>.</span><small>HELADERÍAS</small></a><p>General Alvear, Mendoza</p><a class="enlace" href="https://instagram.com/pireheladeria" target="_blank" rel="noopener">Instagram <span class="flecha diagonal" aria-hidden="true"></span></a></div></footer>
 </body>
 </html>
