@@ -302,8 +302,11 @@ a { color: var(--rojo-claro); }
    ═══════════════════════════════════════════════════════════ */
 .escena {
   position: relative;
-  /* Alto del recorrido: lo fija js/helado.js (ALTURA_HERO_VH). */
-  height: var(--escena-alto, 700vh);
+  height: 420vh;
+}
+
+@media (max-width: 768px) {
+  .escena { height: 340vh; }
 }
 
 /* Anclas del menú (tramos de la página) */
@@ -467,7 +470,7 @@ a { color: var(--rojo-claro); }
 .historia {
   position: relative;
   /* Alto del recorrido: lo fija js/helado.js (ALTURA_HISTORIA_VH). */
-  height: var(--historia-alto, 350vh);
+  height: 350vh;
   padding: 0;
 }
 
@@ -873,22 +876,20 @@ a { color: var(--rojo-claro); }
   }
   .fotos-desayuno::-webkit-scrollbar { display: none; }
 
-  .foto-placeholder {
+  .foto-desayuno {
     flex: 0 0 84%;
     scroll-snap-align: center;
   }
 }
 
-.foto-placeholder {
+.foto-desayuno {
   aspect-ratio: 4 / 3;
   border-radius: var(--radio-grande);
-  background: repeating-linear-gradient(45deg, #1A1A1A, #1A1A1A 12px, #141414 12px, #141414 24px);
+  width: 100%;
+  display: block;
+  object-fit: contain;
+  background: var(--superficie);
   border: 1px solid var(--borde);
-  display: grid;
-  place-items: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  color: var(--gris);
   will-change: transform;
 }
 
@@ -1380,15 +1381,16 @@ a { color: var(--rojo-claro); }
   #escena.modo-3d #helado-svg { display: block; }
 
   /* Texto gigante: todo visible, sin transformaciones */
+  .hero-scroll { display: none; }
+
   .hero-linea .letra,
-  .hero-sub,
-  .hero-scroll {
+  .hero-sub {
     opacity: 1 !important;
     transform: none !important;
   }
 
   /* Historia: capítulos apilados y visibles, sin pin */
-  .historia-pasos { height: auto; }
+  .historia-pasos { height: auto; padding-inline: 0; }
 
   .capitulo {
     position: static;
@@ -1452,7 +1454,7 @@ a { color: var(--rojo-claro); }
   }
 
   /* Desayuno: fotos sin parallax (y carrusel sin snap: scroll normal) */
-  .foto-placeholder { transform: none !important; opacity: 1 !important; }
+  .foto-desayuno { transform: none !important; opacity: 1 !important; }
   .fotos-desayuno { scroll-snap-type: none; }
 
   /* Cifras: números completos, sin contar */
@@ -1463,3 +1465,68 @@ a { color: var(--rojo-claro); }
   .btn-magnetico.pulso::after { display: none; }
 }
 
+
+.hero-acciones {
+  position: absolute;
+  z-index: 3;
+  inset-inline: 1rem;
+  bottom: 3.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  pointer-events: none;
+}
+
+.hero-acciones .btn {
+  pointer-events: auto;
+  padding: 0.65rem 1rem;
+  font-size: 0.94rem;
+  background: var(--rojo-hondo);
+}
+
+.hero-acciones .btn-secundario {
+  background: var(--negro-profundo);
+}
+
+#sabores, #delivery { scroll-margin-top: var(--header-alto); }
+
+.buscador-sabores { margin-top: 1.5rem; }
+.buscador-sabores label { display: block; margin-bottom: 0.55rem; font-weight: 700; }
+.buscador-sabores input {
+  width: min(100%, 32rem);
+  min-height: 3rem;
+  padding: 0.65rem 1rem;
+  color: var(--blanco);
+  background: var(--superficie);
+  border: 1px solid var(--gris);
+  border-radius: 0.75rem;
+  font: inherit;
+}
+.buscador-sabores input::placeholder { color: var(--gris); }
+#estado-busqueda:empty { display: none; }
+#resultados-sabores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+#resultados-sabores li {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 0.75rem;
+}
+#resultados-sabores span { color: var(--gris); font-size: 0.85rem; }
+#resultados-sabores[hidden], .grilla-sabores[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-acciones {
+    position: relative;
+    inset: auto;
+    margin-top: 1.25rem;
+  }
+}

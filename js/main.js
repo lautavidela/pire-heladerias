@@ -161,9 +161,14 @@
     document.querySelectorAll('a[href^="#"]').forEach((a) => {
       a.addEventListener("click", (e) => {
         const destino = document.querySelector(a.getAttribute("href"));
-        if (!destino) return;
+        if (!destino || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
         e.preventDefault();
-        lenis.scrollTo(destino, { offset: -20 });
+        if (location.hash !== a.hash) history.pushState(null, "", a.hash);
+        const header = document.querySelector(".header");
+        lenis.resize();
+        lenis.scrollTo(destino, { offset: -(header.offsetHeight + 12), immediate: true });
+        destino.setAttribute("tabindex", "-1");
+        destino.focus({ preventScroll: true });
       });
     });
   }
@@ -179,6 +184,39 @@
 
     const cats = window.SABORES_CATEGORIAS || [];
     const esMobile = () => window.matchMedia("(max-width: 899px)").matches;
+
+    const buscador = document.querySelector(".buscador-sabores");
+    const campo = document.getElementById("buscar-sabor");
+    const resultados = document.getElementById("resultados-sabores");
+    const estado = document.getElementById("estado-busqueda");
+    const normalizar = (texto) => texto.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+    const nombres = new Map(cats.map((cat) => [cat.id, cat.nombre]));
+    const indice = window.SABORES.map((sabor) => ({
+      ...sabor,
+      nombreCategoria: nombres.get(sabor.categoria),
+      texto: normalizar(sabor.nombre),
+    }));
+
+    buscador.hidden = false;
+    campo.addEventListener("input", () => {
+      const consulta = normalizar(campo.value.trim());
+      const coincidencias = consulta ? indice.filter((sabor) => sabor.texto.includes(consulta)) : [];
+      resultados.replaceChildren(...coincidencias.map((sabor) => {
+        const item = document.createElement("li");
+        const nombre = document.createElement("strong");
+        nombre.textContent = sabor.nombre;
+        const categoria = document.createElement("span");
+        categoria.textContent = sabor.nombreCategoria;
+        item.append(nombre, categoria);
+        return item;
+      }));
+      grilla.hidden = Boolean(consulta);
+      resultados.hidden = !coincidencias.length;
+      estado.textContent = !consulta ? "" : coincidencias.length
+        ? `${coincidencias.length} ${coincidencias.length === 1 ? "sabor encontrado" : "sabores encontrados"}`
+        : "No encontramos ese sabor. Probá con otro nombre.";
+      if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh(true);
+    });
 
     function listaUL(items) {
       const ul = document.createElement("ul");

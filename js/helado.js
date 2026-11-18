@@ -25,11 +25,8 @@
 
   // Alto del HERO (en vh): recorrido del armado del helado sobre el texto.
   // Más bajo = menos scroll. Ajustado para que termine antes.
-  const ALTURA_HERO_VH = 420;
-  const ALTURA_HERO_VH_MOVIL = 340;
 
   // Alto de la sección HISTORIA (en vh): los 4 capítulos pinned.
-  const ALTURA_HISTORIA_VH = 350;
 
   // Alto/ancho del helado terminado (unidades de mundo) para encuadrar.
   // Se usa una caja fija para que la cámara NO salte al agregar bochas/toppings.
@@ -39,8 +36,7 @@
   const MARGEN_ENCUADRE = 1.06;
 
   // Duración total del timeline (unidades; solo importan las proporciones).
-  // Los beats terminan en 10.8 (letras + hint). Un poco de cola => 11.6.
-  const D = 11.6;
+  const D = 13.2;
 
   // Entorno HDR de estudio (CC0, PolyHaven). Si falla → RoomEnvironment.
   const HDR_URL =
@@ -335,6 +331,35 @@
     return tex;
   }
 
+  // Microrelieve de cristales y surcos de cuchara, continuo en la costura UV.
+  function relieveBocha(THREE, perlin, semilla) {
+    const lado = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = lado;
+    const ctx = canvas.getContext("2d");
+    const imagen = ctx.createImageData(lado, lado);
+    for (let y = 0; y < lado; y++) {
+      const polar = (y / (lado - 1)) * Math.PI;
+      const radio = Math.sin(polar);
+      const altura = Math.cos(polar);
+      for (let x = 0; x < lado; x++) {
+        const giro = (x / (lado - 1)) * Math.PI * 2;
+        const u = radio * Math.cos(giro);
+        const v = radio * Math.sin(giro);
+        const surcos = perlin.noise(u * 13 + semilla, altura * 32, v * 13);
+        const grano = perlin.noise(u * 51, altura * 51 + semilla, v * 51);
+        const valor = 128 + surcos * 68 + grano * 46;
+        const i = (y * lado + x) * 4;
+        imagen.data[i] = imagen.data[i + 1] = imagen.data[i + 2] = valor;
+        imagen.data[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(imagen, 0, 0);
+    const textura = new THREE.CanvasTexture(canvas);
+    textura.wrapS = THREE.RepeatWrapping;
+    return textura;
+  }
+
   // Una bocha: esfera deformada con Perlin + material tipo helado.
   function crearBocha(THREE, perlin, cfg, radio, semilla) {
     const seg = esMovil() ? 48 : 96;
@@ -347,7 +372,9 @@
     for (let i = 0; i < pos.count; i++) {
       v.fromBufferAttribute(pos, i);
       const n = perlin.noise(v.x * 2.6 + s, v.y * 2.6 + s, v.z * 2.6 + s);
-      const d = 1 + n * 0.06;
+      const detalle = perlin.noise(v.x * 11 + s, v.y * 13, v.z * 11);
+      const borde = Math.exp(-Math.pow((v.y / radio + 0.53) / 0.12, 2));
+      const d = 1 + n * 0.105 + detalle * 0.037 + borde * (0.065 + detalle * 0.11);
       pos.setXYZ(i, v.x * d, v.y * d, v.z * d);
     }
     pos.needsUpdate = true;
@@ -356,11 +383,13 @@
 
     const mat = new THREE.MeshPhysicalMaterial({
       map: texturaBocha(THREE, cfg),
-      roughness: cfg.rough || 0.42,
+      bumpMap: relieveBocha(THREE, perlin, s),
+      bumpScale: 0.037,
+      roughness: cfg.rough + 0.12,
       metalness: 0.0,
-      clearcoat: 0.3,
+      clearcoat: 0.12,
       clearcoatRoughness: 0.55,
-      sheen: 0.45,
+      sheen: 0.28,
       sheenColor: 0xffffff,
       sheenRoughness: 0.85,
       envMapIntensity: 1.05,
@@ -375,7 +404,7 @@
 
   // Bochas, apiladas sobre la boca del cono. (Reducido a 2)
   function crearBochas(THREE, perlin) {
-    const y1 = TOPE_CONO + R_BOCHA * 0.25;
+    const y1 = TOPE_CONO + R_BOCHA * 0.44;
     const y2 = y1 + R_BOCHA * 1.12;
 
     const disposicion = [
@@ -411,10 +440,23 @@
     });
 
     // Casquete (cubre la parte de arriba de la bocha)
-    const cap = new THREE.Mesh(
-      new THREE.SphereGeometry(radio * 1.025, seg, Math.round(seg * 0.6), 0, Math.PI * 2, 0, 1.02),
-      mat
+    const capGeo = new THREE.SphereGeometry(
+      radio * 1.04, seg, Math.round(seg * 0.6), 0, Math.PI * 2, 0, 1.02
     );
+    const vertices = capGeo.attributes.position;
+    const punto = new THREE.Vector3();
+    for (let i = 0; i < vertices.count; i++) {
+      punto.fromBufferAttribute(vertices, i);
+      const azimut = Math.atan2(punto.z, punto.x);
+      const polar = Math.acos(THREE.MathUtils.clamp(punto.y / punto.length(), -1, 1));
+      const ondulacion = Math.sin(azimut * 5) * 0.045 + Math.cos(azimut * 8) * 0.034;
+      const angulo = polar + ondulacion * (polar / 1.02) ** 3;
+      const r = punto.length();
+      vertices.setXYZ(i, r * Math.sin(angulo) * Math.cos(azimut),
+        r * Math.cos(angulo), r * Math.sin(angulo) * Math.sin(azimut));
+    }
+    capGeo.computeVertexNormals();
+    const cap = new THREE.Mesh(capGeo, mat);
     cap.name = "salsa-cap";
     cap.castShadow = true;
     cap.receiveShadow = true;
@@ -665,13 +707,6 @@
 
     fondo(FONDO.inicio, 0);
 
-    // Primero aparece el helado (cono + bochas). El texto "HELADERÍA PIRÉ"
-    // entra un poco después, tal como pediste.
-    if (letras.length) {
-      gsap.set(letras, { opacity: 0 });
-      tl.to(letras, { opacity: 1, duration: 0.9, stagger: 0.03, ease: "power2.out" }, 1.8);
-    }
-
     // Giro continuo del helado ligado al scroll (grupo exterior).
     tl.fromTo(grupoHelado.rotation, { y: 0 }, { y: -Math.PI * 2, duration: D - 3.6, ease: "none" }, 0);
 
@@ -753,15 +788,17 @@
     }
 
     // ── Beat 4: el helado BAJA y sale por abajo (giro final) ──
-    fondo(FONDO.cierre, 9.2);
+    // Acercamiento suave para ver las texturas con el helado completo.
+    dolly(1.09, 9.15, 1.85);
+    fondo(FONDO.cierre, 11.0);
     const yGrupo = grupoHelado.position.y;
-    tl.to(grupoHelado.position, { y: yGrupo - 6.4, duration: 1.8, ease: "power2.in" }, 9.4);
-    tl.to(grupoHelado.rotation, { y: -Math.PI * 4, duration: 2.0, ease: "power2.inOut" }, 9.4);
+    tl.to(grupoHelado.position, { y: yGrupo - 6.4, duration: 1.7, ease: "power2.in" }, 11.3);
+    tl.to(grupoHelado.rotation, { y: -Math.PI * 3.2, duration: 1.9, ease: "power2.inOut" }, 11.3);
     if (letras.length) {
-      tl.to(letras, { opacity: 1, duration: 0.8, ease: "power2.out" }, 10.0);
+      tl.to(letras, { opacity: 1, duration: 0.8, ease: "power2.out" }, 12.0);
     }
-    tl.to(".hero-scroll", { y: 0, duration: 0.4, ease: "power2.out" }, 10.4);
-    tl.to(".hero-scroll", { opacity: 0, duration: 0.4 }, 10.8);
+    tl.to(".hero-scroll", { y: 0, duration: 0.4, ease: "power2.out" }, 12.2);
+    tl.to(".hero-scroll", { opacity: 0, duration: 0.4 }, 12.7);
 
     // Botón del cierre (fuera del foco mientras el helado tapa el texto).
     const btnPedir = document.querySelector(".btn-pedir");
@@ -912,15 +949,6 @@
     const section = document.getElementById("escena");
     const canvas = document.getElementById("helado-canvas");
     if (!section || !canvas) return;
-
-    // Altos de recorrido: una sola fuente de verdad (constantes de arriba).
-    // En mobile el hero es más corto (menos scroll para el mismo armado).
-    const altoHero = esMovil() ? ALTURA_HERO_VH_MOVIL : ALTURA_HERO_VH;
-    section.style.setProperty("--escena-alto", altoHero + "vh");
-    const seccionHistoria = document.getElementById("historia");
-    if (seccionHistoria) {
-      seccionHistoria.style.setProperty("--historia-alto", ALTURA_HISTORIA_VH + "vh");
-    }
 
     section.classList.add("modo-3d", "modo-cargando");
 

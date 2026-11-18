@@ -85,8 +85,12 @@
             <span class="hero-linea" data-linea="0">Heladería</span>
             <span class="hero-linea" data-linea="1">Piré</span>
           </h1>
-          <p class="hero-sub">Sentí sabores naturales. Sentí Piré.</p>
+          <p class="hero-sub">Helado artesanal en General Alvear, Mendoza.</p>
           <p class="hero-scroll" aria-hidden="true">Seguí scrolleando</p>
+        </div>
+        <div class="hero-acciones">
+          <a class="btn" href="#sabores">Ver sabores</a>
+          <a class="btn btn-secundario" href="#delivery">Pedir helado</a>
         </div>
 
         <!-- Canvas 3D de pantalla completa, por ENCIMA del texto -->
@@ -217,9 +221,14 @@
     <!-- ══════════════ SABORES ══════════════ -->
     <section id="sabores" class="seccion sabores">
       <div class="contenedor">
-        <p class="etiqueta reveal">Nuestros sabores</p>
-        <h2 class="titulo-anim" data-revelar="letras">60 gustos diferentes, más helados light</h2>
-        <p class="lead reveal">Deliciosos, tradicionales, frutales, livianos y especiales: la lista oficial de Piré.</p>
+        <h2>Encontrá tu sabor</h2>
+        <div class="buscador-sabores" hidden>
+          <label for="buscar-sabor">Buscar en la carta de helados</label>
+          <input type="search" id="buscar-sabor" placeholder="Ej. chocolate, limón o dulce de leche" autocomplete="off" />
+          <p id="estado-busqueda" role="status"></p>
+          <ul id="resultados-sabores" hidden></ul>
+        </div>
+        <noscript><p><a href="https://pireheladerias.com.ar/sabores.html">Consultar la carta de sabores</a></p></noscript>
 
         <div class="grilla-sabores" id="grilla-sabores">
           <!-- Paneles rojos renderizados desde data/sabores.js -->
@@ -267,9 +276,9 @@
         <h2 class="titulo-anim" data-revelar="letras">Café, medialunas y algo rico</h2>
         <p class="lead reveal">Cafetería y pastelería para empezar bien el día (o la tarde).</p>
         <div class="fotos-desayuno">
-          <div class="foto-placeholder" data-capa="1" role="img" aria-label="Foto del desayuno Piré (próximamente)">Foto 1</div>
-          <div class="foto-placeholder" data-capa="2" role="img" aria-label="Foto de la cafetería (próximamente)">Foto 2</div>
-          <div class="foto-placeholder" data-capa="3" role="img" aria-label="Foto de medialunas y pastelería (próximamente)">Foto 3</div>
+          <img class="foto-desayuno" data-capa="1" src="assets/desayuno/desayuno.jpg" loading="lazy" decoding="async" alt="Desayuno Piré, foto 1" />
+          <img class="foto-desayuno" data-capa="2" src="assets/desayuno/desayuno1.jpg" loading="lazy" decoding="async" alt="Desayuno Piré, foto 2" />
+          <img class="foto-desayuno" data-capa="3" src="assets/desayuno/desayuno2.jpg" loading="lazy" decoding="async" alt="Desayuno Piré, foto 3" />
         </div>
       </div>
     </section>
@@ -341,7 +350,7 @@
           </div>
           <div>
             <h3>Dónde estamos</h3>
-            <div class="mapa-placeholder" role="img" aria-label="Mapa de ubicación (próximamente)">Mapa</div>
+            <p><a href="https://www.google.com/maps/search/?api=1&amp;query=Pir%C3%A9+Helader%C3%ADas+General+Alvear+Mendoza" target="_blank" rel="noopener">Buscar Piré en Google Maps</a></p>
           </div>
         </div>
 
